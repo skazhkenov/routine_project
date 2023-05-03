@@ -1,0 +1,12 @@
+C:\Users\Asus\Rust_Scripts\projects\boards\back\code\target\debug\deps\async_lock-dd53a5411f0d0a7a.rmeta: C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\lib.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\barrier.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\mutex.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\once_cell.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\rwlock.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\semaphore.rs
+
+C:\Users\Asus\Rust_Scripts\projects\boards\back\code\target\debug\deps\libasync_lock-dd53a5411f0d0a7a.rlib: C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\lib.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\barrier.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\mutex.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\once_cell.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\rwlock.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\semaphore.rs
+
+C:\Users\Asus\Rust_Scripts\projects\boards\back\code\target\debug\deps\async_lock-dd53a5411f0d0a7a.d: C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\lib.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\barrier.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\mutex.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\once_cell.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\rwlock.rs C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\semaphore.rs
+
+C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\lib.rs:
+C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\barrier.rs:
+C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\mutex.rs:
+C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\once_cell.rs:
+C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\rwlock.rs:
+C:\Users\Asus\.cargo\registry\src\github.com-1ecc6299db9ec823\async-lock-2.7.0\src\semaphore.rs:
