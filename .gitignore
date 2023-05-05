@@ -1,2 +1,5 @@
 # Generated files
 /back/code/target
+
+# Local env file
+/back/code/.env
