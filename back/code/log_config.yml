@@ -1,0 +1,19 @@
+appenders:
+  stdout:
+    kind: console
+  file:
+    kind: file
+    path: "logs/app.log"
+    encoder:
+      pattern: "{l} {d(%Y-%m-%d %H:%M:%S)} {t} - {m}{n}"
+root:
+  level: info
+  appenders:
+    - file
+loggers:
+  myapp::module::submodule:
+    level: info
+  myapp::module::submodule::warn:
+    level: warn
+  myapp::module::submodule::error:
+    level: error

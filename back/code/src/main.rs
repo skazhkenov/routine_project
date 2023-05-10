@@ -1,22 +1,23 @@
+#[macro_use]
+extern crate log;
+extern crate log4rs;
+
 use std::sync::Mutex;
 use actix_web::{web, App, HttpServer};
 use sqlx::{postgres::{PgPoolOptions, self}, Postgres, Pool};
 use redis::{self, Commands, Connection as RedisConnection};
+use log4rs::config::{self, Config};
 
 mod authorisation;
-mod logging;
 mod models;
+mod redis_handlers;
 mod services;
 
 use services::{boards_managing, tasks_managing};
-use logging::LogWriter;
 
 const HOST: &'static str = "127.0.0.1:5000";
 const REDIS_HOST: &'static str = "redis://192.168.0.103:4444";
 const LOG_FILE_PATH: &'static str = "./logs/log";
-pub const STATIC_FILES_PATH: &'static str = "./static_files";
-pub const START_PAGE_FILE_NAME: &'static str = "index.html";
-pub const NOT_FOUND_FILE_NAME: &'static str = "404.html";
 
 // postgres data model
 pub const APP_SCHEMA: &'static str = "routine_app";
@@ -32,11 +33,6 @@ pub struct PostgresDB {
 pub struct RedisDB {
     db: Mutex<RedisConnection>
 }
-pub struct Logger {
-    file_path: &'static str, 
-    logger: Mutex<LogWriter>
-}
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -44,8 +40,8 @@ async fn main() -> std::io::Result<()> {
     dotenv::dotenv().expect("Unable to load environment variables from .env file");
     let db_url = std::env::var("DATABASE_URL").expect("Unable to read DATABASE_URL env var");
 
-    logging::log("Service started", Ok("Ok"));
-    
+    let log_config: Config = log4rs::config::load_config_file("log_config.yml", Default::default()).unwrap();
+    let log_handle: log4rs::Handle = log4rs::init_config(log_config).unwrap();
 
     let postgres_pool = PgPoolOptions::new()
         .max_connections(50)
@@ -66,20 +62,13 @@ async fn main() -> std::io::Result<()> {
             db: Mutex::new(redis_connection)
         }
     );
-    let logger = web::Data::new(
-        Logger {
-            file_path: LOG_FILE_PATH, 
-            logger: Mutex::new(LogWriter)
-        }
-    );
 
-    println!("Application start");
+    log::info!("Start of application");
 
     HttpServer::new(move || {
         App::new()
             .app_data(postgres_db.clone())
             .app_data(redis_db.clone())
-            .app_data(logger.clone())
             .configure(boards_managing)
             .configure(tasks_managing)
     })

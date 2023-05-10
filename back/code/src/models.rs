@@ -6,10 +6,10 @@ use crate::authorisation::UserWebData;
 
 #[derive(Serialize, Deserialize)]
 pub struct Board {
-    id: i32, 
-    title: String, 
-    description: String,
-    creation_time: i64
+    pub id: i32, 
+    pub title: String, 
+    pub description: String,
+    pub creation_time: i64
 }
 
 #[derive(Serialize, Deserialize)]
@@ -58,12 +58,12 @@ pub struct DeleteBoardBody {
 
 #[derive(Serialize, Deserialize)]
 pub struct Task {
-    id: i32, 
-    title: String, 
-    description: String,
-    board_id: i32, 
-    status_id: i32, 
-    last_status_change_time: i64
+    pub id: i32, 
+    pub title: String, 
+    pub description: String,
+    pub board_id: i32, 
+    pub status_id: i32, 
+    pub last_status_change_time: i64
 }
 
 #[derive(Serialize, Deserialize)]

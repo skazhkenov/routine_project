@@ -1,0 +1,533 @@
+INFO 2023-05-07 14:16:31 code - Start of application
+INFO 2023-05-07 14:16:31 actix_server::builder - starting 3 workers
+INFO 2023-05-07 14:16:31 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-07 14:17:36 code::services - Boards requested by user - 2
+INFO 2023-05-07 14:17:36 sqlx::query - SELECT id, title, description, …; rows affected: 1, rows returned: 1, elapsed: 28.667ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+INFO 2023-05-07 14:18:35 code::services - Boards requested by user - 2
+INFO 2023-05-07 14:18:49 code::services - Boards requested by user - 2
+INFO 2023-05-07 14:18:49 sqlx::query - SELECT id, title, description, …; rows affected: 1, rows returned: 1, elapsed: 3.286ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+INFO 2023-05-07 14:19:36 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-07 14:19:36 actix_server::accept - accept thread stopped
+INFO 2023-05-07 14:19:36 actix_server::worker - shutting down idle worker
+INFO 2023-05-07 14:19:36 actix_server::worker - shutting down idle worker
+INFO 2023-05-07 14:19:36 actix_server::worker - shutting down idle worker
+INFO 2023-05-07 14:19:56 code - Start of application
+INFO 2023-05-07 14:19:56 actix_server::builder - starting 3 workers
+INFO 2023-05-07 14:19:56 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-07 14:20:19 code::services - Boards requested by user - 2
+INFO 2023-05-07 14:20:19 sqlx::query - SELECT id, title, description, …; rows affected: 1, rows returned: 1, elapsed: 30.196ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+INFO 2023-05-09 22:42:27 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-09 22:42:27 actix_server::worker - shutting down idle worker
+INFO 2023-05-09 22:42:27 actix_server::worker - shutting down idle worker
+INFO 2023-05-09 22:42:27 actix_server::worker - shutting down idle worker
+INFO 2023-05-09 22:42:27 actix_server::accept - accept thread stopped
+INFO 2023-05-09 22:46:17 code - Start of application
+INFO 2023-05-09 22:46:17 actix_server::builder - starting 3 workers
+INFO 2023-05-09 22:46:17 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-09 22:46:18 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-09 22:46:18 actix_server::worker - shutting down idle worker
+INFO 2023-05-09 22:46:18 actix_server::worker - shutting down idle worker
+INFO 2023-05-09 22:46:18 actix_server::worker - shutting down idle worker
+INFO 2023-05-09 22:46:18 actix_server::accept - accept thread stopped
+INFO 2023-05-10 11:32:14 code - Start of application
+INFO 2023-05-10 11:32:14 actix_server::builder - starting 3 workers
+INFO 2023-05-10 11:32:14 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-10 11:32:29 code::services - Boards requested by user - 2
+INFO 2023-05-10 11:32:29 sqlx::query - SELECT id, title, description, …; rows affected: 1, rows returned: 1, elapsed: 31.613ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+WARN 2023-05-10 11:32:29 code::services - Redis database has empty data by user - 2
+INFO 2023-05-10 11:34:03 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-10 11:34:03 actix_server::accept - accept thread stopped
+INFO 2023-05-10 11:34:03 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 11:34:03 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 11:34:03 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 11:34:27 code - Start of application
+INFO 2023-05-10 11:34:27 actix_server::builder - starting 3 workers
+INFO 2023-05-10 11:34:27 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-10 11:34:31 code::services - Boards requested by user - 2
+INFO 2023-05-10 11:34:31 sqlx::query - SELECT id, title, description, …; rows affected: 1, rows returned: 1, elapsed: 32.455ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+WARN 2023-05-10 11:34:31 code::services - Redis database has empty data by user - 2
+INFO 2023-05-10 11:41:58 code::services - Boards requested by user - 2
+INFO 2023-05-10 11:41:58 sqlx_core::pool::inner - ping on idle connection returned error: error returned from database: terminating connection due to administrator command
+ERROR 2023-05-10 11:42:28 code::services - Database issue - PoolTimedOut
+INFO 2023-05-10 11:47:06 code::services - Boards requested by user - 2
+INFO 2023-05-10 11:47:07 sqlx::query - SELECT id, title, description, …; rows affected: 1, rows returned: 1, elapsed: 17.517ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+WARN 2023-05-10 11:47:07 code::services - Redis database has empty data by user - 2
+INFO 2023-05-10 11:47:10 code::services - Boards requested by user - 2
+INFO 2023-05-10 15:05:53 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-10 15:05:53 actix_server::accept - accept thread stopped
+INFO 2023-05-10 15:05:53 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:05:53 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:05:53 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:06:22 code - Start of application
+INFO 2023-05-10 15:06:22 actix_server::builder - starting 3 workers
+INFO 2023-05-10 15:06:22 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-10 15:06:31 code::services - Boards requested by user 2
+INFO 2023-05-10 15:06:31 sqlx::query - SELECT id, title, description, …; rows affected: 1, rows returned: 1, elapsed: 30.369ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+INFO 2023-05-10 15:06:37 code::services - Boards requested by user 2
+INFO 2023-05-10 15:13:26 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-10 15:13:26 actix_server::accept - accept thread stopped
+INFO 2023-05-10 15:13:26 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:13:26 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:13:26 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:13:44 code - Start of application
+INFO 2023-05-10 15:13:44 actix_server::builder - starting 3 workers
+INFO 2023-05-10 15:13:44 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-10 15:13:51 code::services - Boards requested by user 2
+INFO 2023-05-10 15:13:51 sqlx::query - SELECT id, title, description, …; rows affected: 1, rows returned: 1, elapsed: 27.059ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+INFO 2023-05-10 15:13:53 code::services - Boards requested by user 2
+INFO 2023-05-10 15:14:06 code::services - Creation new board by user 2, at 2023-05-10 09:14:06.695328200
+INFO 2023-05-10 15:14:06 sqlx::query - INSERT INTO routine_app.board (title, …; rows affected: 1, rows returned: 0, elapsed: 18.279ms
+
+INSERT INTO
+  routine_app.board (
+    title,
+    description,
+    status_id,
+    owner_id,
+    creation_time
+  )
+VALUES
+  ($1, $2, $3, $4, $5)
+
+INFO 2023-05-10 15:28:21 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-10 15:28:21 actix_server::accept - accept thread stopped
+INFO 2023-05-10 15:28:21 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:28:21 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:28:21 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:28:38 code - Start of application
+INFO 2023-05-10 15:28:38 actix_server::builder - starting 3 workers
+INFO 2023-05-10 15:28:38 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-10 15:28:41 code::services - Boards requested by user 2
+INFO 2023-05-10 15:28:41 sqlx::query - SELECT id, title, description, …; rows affected: 2, rows returned: 2, elapsed: 20.678ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+INFO 2023-05-10 15:28:45 code::services - Creation new board by user 2, at 2023-05-10 09:28:45.502212
+INFO 2023-05-10 15:28:45 sqlx::query - INSERT INTO routine_app.board (title, …; rows affected: 1, rows returned: 0, elapsed: 19.716ms
+
+INSERT INTO
+  routine_app.board (
+    title,
+    description,
+    status_id,
+    owner_id,
+    creation_time
+  )
+VALUES
+  ($1, $2, $3, $4, $5)
+
+INFO 2023-05-10 15:29:08 code::services - User 2 tried to change board 7
+INFO 2023-05-10 15:29:08 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 1, elapsed: 10.505ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 15:29:08 sqlx::query - UPDATE routine_app.board SET title …; rows affected: 1, rows returned: 0, elapsed: 29.102ms
+
+UPDATE
+  routine_app.board
+SET
+  title = $2,
+  description = $3
+WHERE
+  id = $1
+  AND owner_id = $4
+  AND status_id = 0
+
+INFO 2023-05-10 15:29:19 code::services - User 2 tried to delete board 7
+INFO 2023-05-10 15:29:19 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 1, elapsed: 4.895ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 15:29:19 sqlx::query - UPDATE routine_app.board SET status_id …; rows affected: 1, rows returned: 0, elapsed: 17.408ms
+
+UPDATE
+  routine_app.board
+SET
+  status_id = 1
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 15:29:21 code::services - User 2 tried to delete board 7
+INFO 2023-05-10 15:29:21 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 0, elapsed: 4.071ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 15:29:37 code::services - Boards requested by user 2
+INFO 2023-05-10 15:29:37 sqlx::query - SELECT id, title, description, …; rows affected: 2, rows returned: 2, elapsed: 54.011ms
+
+SELECT
+  id,
+  title,
+  description,
+  creation_time
+FROM
+  routine_app.board
+WHERE
+  status_id = 0
+  AND owner_id = $1
+
+INFO 2023-05-10 15:29:38 code::services - Boards requested by user 2
+INFO 2023-05-10 15:39:35 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-10 15:39:35 actix_server::accept - accept thread stopped
+INFO 2023-05-10 15:39:35 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:39:35 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:39:35 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 15:39:50 code - Start of application
+INFO 2023-05-10 15:39:50 actix_server::builder - starting 3 workers
+INFO 2023-05-10 15:39:50 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-10 15:39:58 code::services - Tasks from board 1 requested by user 1
+INFO 2023-05-10 15:39:58 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 1, elapsed: 29.948ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 15:39:58 sqlx::query - SELECT t.id, t.title, t.description, …; rows affected: 3, rows returned: 3, elapsed: 20.752ms
+
+SELECT
+  t.id,
+  t.title,
+  t.description,
+  t.board_id,
+  t.status_id,
+  t.last_status_change_time
+FROM
+  routine_app.task t
+  INNER JOIN routine_app.board b ON t.board_id = b.id
+WHERE
+  t.status_id != 4
+  AND t.board_id = $1
+  AND b.owner_id = $2
+
+INFO 2023-05-10 15:40:04 code::services - Tasks from board 1 requested by user 1
+INFO 2023-05-10 15:40:04 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 1, elapsed: 7.390ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 16:12:17 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-10 16:12:17 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 16:12:17 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 16:12:17 actix_server::accept - accept thread stopped
+INFO 2023-05-10 16:12:17 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 16:12:32 code - Start of application
+INFO 2023-05-10 16:12:32 actix_server::builder - starting 3 workers
+INFO 2023-05-10 16:12:32 actix_server::server - Actix runtime found; starting in Actix runtime
+INFO 2023-05-10 16:12:38 code::services - Tasks from board 1 requested by user 1
+INFO 2023-05-10 16:12:38 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 1, elapsed: 29.996ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 16:12:38 sqlx::query - SELECT t.id, t.title, t.description, …; rows affected: 3, rows returned: 3, elapsed: 25.164ms
+
+SELECT
+  t.id,
+  t.title,
+  t.description,
+  t.board_id,
+  t.status_id,
+  t.last_status_change_time
+FROM
+  routine_app.task t
+  INNER JOIN routine_app.board b ON t.board_id = b.id
+WHERE
+  t.status_id != 4
+  AND t.board_id = $1
+  AND b.owner_id = $2
+
+INFO 2023-05-10 16:12:41 code::services - Tasks from board 1 requested by user 1
+INFO 2023-05-10 16:12:41 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 1, elapsed: 3.813ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 16:13:00 code::services - User 1 tried to create new task on board 1 at 2023-05-10 10:13:00.028546500
+INFO 2023-05-10 16:13:00 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 1, elapsed: 10.480ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 16:13:00 sqlx::query - INSERT INTO routine_app.task (title, …; rows affected: 1, rows returned: 0, elapsed: 18.174ms
+
+INSERT INTO
+  routine_app.task (
+    title,
+    description,
+    board_id,
+    status_id,
+    last_status_change_time,
+    creation_time
+  )
+VALUES
+  ($1, $2, $3, $4, $5, $5)
+
+INFO 2023-05-10 16:13:19 code::services - Tasks from board 1 requested by user 1
+INFO 2023-05-10 16:13:19 sqlx::query - SELECT id FROM routine_app.board …; rows affected: 0, rows returned: 1, elapsed: 3.597ms
+
+SELECT
+  id
+FROM
+  routine_app.board
+WHERE
+  id = $1
+  AND owner_id = $2
+  AND status_id = 0
+
+INFO 2023-05-10 16:13:19 sqlx::query - SELECT t.id, t.title, t.description, …; rows affected: 4, rows returned: 4, elapsed: 20.667ms
+
+SELECT
+  t.id,
+  t.title,
+  t.description,
+  t.board_id,
+  t.status_id,
+  t.last_status_change_time
+FROM
+  routine_app.task t
+  INNER JOIN routine_app.board b ON t.board_id = b.id
+WHERE
+  t.status_id != 4
+  AND t.board_id = $1
+  AND b.owner_id = $2
+
+INFO 2023-05-10 16:13:37 code::services - User 1 tried to change task 6 at 2023-05-10 10:13:37.052169500
+INFO 2023-05-10 16:13:37 sqlx::query - SELECT t.status_id FROM routine_app.task …; rows affected: 0, rows returned: 1, elapsed: 7.708ms
+
+SELECT
+  t.status_id
+FROM
+  routine_app.task t
+  INNER JOIN routine_app.board b ON t.board_id = b.id
+WHERE
+  t.status_id != 4
+  AND t.id = $1
+  AND t.board_id = $2
+  AND b.owner_id = $3
+
+INFO 2023-05-10 16:13:37 sqlx::query - UPDATE routine_app.task t SET …; rows affected: 1, rows returned: 0, elapsed: 21.231ms
+
+UPDATE
+  routine_app.task t
+SET
+  title = $2,
+  description = $3,
+  status_id = $6,
+  last_status_change_time = $7
+FROM
+  routine_app.board b
+WHERE
+  b.id = t.board_id
+  AND t.id = $1
+  AND t.board_id = $4
+  AND b.owner_id = $5
+  AND b.status_id = 0
+  AND t.status_id != 4
+
+INFO 2023-05-10 16:13:54 code::services - User 1 tried to delete task 6 at 2023-05-10 10:13:54.143966500
+INFO 2023-05-10 16:13:54 sqlx::query - SELECT t.id FROM routine_app.task …; rows affected: 0, rows returned: 1, elapsed: 21.189ms
+
+SELECT
+  t.id
+FROM
+  routine_app.task t
+  INNER JOIN routine_app.board b ON t.board_id = b.id
+WHERE
+  t.status_id != 4
+  AND t.id = $1
+  AND t.board_id = $2
+  AND b.owner_id = $3
+
+INFO 2023-05-10 16:13:54 sqlx::query - UPDATE routine_app.task t SET …; rows affected: 1, rows returned: 0, elapsed: 34.438ms
+
+UPDATE
+  routine_app.task t
+SET
+  status_id = 4,
+  last_status_change_time = $4
+FROM
+  routine_app.board b
+WHERE
+  b.id = t.board_id
+  AND t.id = $1
+  AND t.board_id = $2
+  AND b.owner_id = $3
+  AND b.status_id = 0
+  AND t.status_id != 4
+
+INFO 2023-05-10 16:13:56 code::services - User 1 tried to delete task 6 at 2023-05-10 10:13:56.828062
+INFO 2023-05-10 16:13:56 sqlx::query - SELECT t.id FROM routine_app.task …; rows affected: 0, rows returned: 0, elapsed: 13.311ms
+
+SELECT
+  t.id
+FROM
+  routine_app.task t
+  INNER JOIN routine_app.board b ON t.board_id = b.id
+WHERE
+  t.status_id != 4
+  AND t.id = $1
+  AND t.board_id = $2
+  AND b.owner_id = $3
+
+INFO 2023-05-10 16:17:23 actix_server::server - SIGINT received; starting forced shutdown
+INFO 2023-05-10 16:17:23 actix_server::accept - accept thread stopped
+INFO 2023-05-10 16:17:23 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 16:17:23 actix_server::worker - shutting down idle worker
+INFO 2023-05-10 16:17:23 actix_server::worker - shutting down idle worker

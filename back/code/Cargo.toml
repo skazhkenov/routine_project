@@ -16,3 +16,6 @@ chrono = { version = "0.4.24", features = ["serde"] }
 dotenv = "0.15.0"
 sqlx = { version = "0.6", features = ["runtime-async-std-native-tls", "postgres", "uuid", "chrono"] }
 redis = { version = "0.20.2", features = ["tokio-comp"]}
+
+log = "0.4.17"
+log4rs = "1.2.0"
