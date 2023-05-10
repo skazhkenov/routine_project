@@ -3,3 +3,6 @@
 
 # Local env file
 /back/code/.env
+
+# Generated logs
+/back/code/logs
