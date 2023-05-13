@@ -22,3 +22,6 @@ log4rs = "1.2.0"
 
 sha2 = "0.10.6"
 base64 = "0.21.0"
+
+lettre = "0.10.4"
+lettre_email = "0.9.4"

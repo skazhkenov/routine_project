@@ -12,7 +12,6 @@ impl AsHash for String {
         let mut hasher = Sha256::new();
         hasher.update(bytes_value);
 
-        
         let result = hasher.finalize();
         format!("{:x}", result)
     }
@@ -24,8 +23,8 @@ pub trait AsBase64 {
 
 impl AsBase64 for String {
     fn as_base64(&self) -> Self {
+
         let b64_string = general_purpose::STANDARD.encode(self);
-        
         b64_string
     }
 }
@@ -37,6 +36,7 @@ where Self: std::marker::Sized {
 
 impl FromBase64 for String {
     fn from_base64(&self) -> Option<Self> {
+        
         let decode_result = general_purpose::STANDARD
             .decode(self);
         match decode_result {

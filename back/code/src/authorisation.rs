@@ -16,6 +16,7 @@ use crate::redis_handlers::{
     drop_user_data_from_redis, put_user_token_to_redis, get_user_token_from_redis, drop_user_token_from_redis
 };
 use crate::convertations::{AsHash, AsBase64, FromBase64};
+use crate::tools::{send_email, generate_random_string};
 
 #[derive(Serialize, Deserialize)]
 pub struct UserWebData {
@@ -55,10 +56,10 @@ pub fn is_valid_token(conn: &mut redis::Connection, web_token_data: UserWebData)
     }
 }
 
-fn send_verification_mail(email: String, user_id: i32, message: &str) {
+// fn send_verification_mail(email: String, user_id: i32, message: &str) {
     
-    println!("Verification mail for user {} sent to {}. {}", user_id, email, message);
-}
+//     println!("Verification mail for user {} sent to {}. {}", user_id, email, message);
+// }
 
 pub fn users_managing(cfg: &mut web::ServiceConfig) {
     cfg
@@ -155,7 +156,8 @@ async fn create_new_user(
                         new_user_id, 
                         verification_token
                     );
-                    send_verification_mail(email, new_user_id, &message);
+                    // send_verification_mail(email, new_user_id, &message);
+                    send_email(email, "New user activation", &message);
                     HttpResponse::Ok().json(ServerResponse {
                         status: 200, 
                         message: String::from("User created")
@@ -482,13 +484,14 @@ async fn change_user_email(
 
                     drop_user_data_from_redis(redis_conn, user_id);
                     let message = format!(
-                        "{}/email_verification/{}/{}/{}", 
+                        "Click the link to verify your new email address {}/email_verification/{}/{}/{}", 
                         crate::SERVICE_URL, 
                         new_email.as_base64(), 
                         user_id, 
                         verification_token
                     );
-                    send_verification_mail(new_email, user_id, &message);
+                    // send_verification_mail(new_email, user_id, &message);
+                    send_email(new_email, "New email address verification", &message);
 
                     HttpResponse::Ok().json(ServerResponse {
                         status: 200, 
@@ -556,7 +559,7 @@ async fn change_forgotten_password(
             if stored_users.len() > 0 {
                 let mut stored_user = stored_users[0].get_user();
 
-                let generated_password = String::from("123");
+                let generated_password = generate_random_string();
                 stored_user.passwd = generated_password.clone().as_hash();
                 stored_user.verification_status_id = 3;
 
@@ -565,7 +568,8 @@ async fn change_forgotten_password(
                     "Your new temporary password {}. Would be valid in next 12 hours.", 
                     generated_password
                 );
-                send_verification_mail(email, 0, &message);
+                // send_verification_mail(email, 0, &message);
+                send_email(email, "Password reset email", &message);
 
                 HttpResponse::Ok().json(ServerResponse {
                     status: 200, 

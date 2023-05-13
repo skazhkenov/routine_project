@@ -13,6 +13,7 @@ mod convertations;
 mod models;
 mod redis_handlers;
 mod services;
+mod tools;
 
 use authorisation::users_managing;
 use services::{boards_managing, tasks_managing};
