@@ -9,15 +9,17 @@ use redis::{self, Commands, Connection as RedisConnection};
 use log4rs::config::{self, Config};
 
 mod authorisation;
+mod convertations;
 mod models;
 mod redis_handlers;
 mod services;
 
+use authorisation::users_managing;
 use services::{boards_managing, tasks_managing};
 
-const HOST: &'static str = "127.0.0.1:5000";
+const HOST: &'static str = "0.0.0.0:5000";
 const REDIS_HOST: &'static str = "redis://192.168.0.103:4444";
-const LOG_FILE_PATH: &'static str = "./logs/log";
+pub const SERVICE_URL: &'static str = "http://127.0.0.1:5000";
 
 // postgres data model
 pub const APP_SCHEMA: &'static str = "routine_app";
@@ -69,6 +71,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(postgres_db.clone())
             .app_data(redis_db.clone())
+            .configure(users_managing)
             .configure(boards_managing)
             .configure(tasks_managing)
     })

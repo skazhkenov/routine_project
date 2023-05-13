@@ -4,6 +4,98 @@ use sqlx::types::uuid::timestamp;
 
 use crate::authorisation::UserWebData;
 
+// Common
+
+#[derive(Serialize)]
+pub struct ServerResponse {
+    pub status: i32, 
+    pub message: String
+}
+
+// Users
+
+#[derive(Serialize, Deserialize)]
+pub struct User {
+    pub id: i32, 
+    pub name: String,
+    pub email: String, 
+    pub passwd: String,
+    pub verification_status_id: i32,
+    pub status_id: i32, 
+    pub creation_time: i64
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct UserCredentials {
+    pub email: String, 
+    pub password: String
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct StoredUser {
+    pub id: i32, 
+    pub name: Option<String>, 
+    pub email: Option<String>, 
+    pub passwd: Option<String>,
+    pub verification_status_id: Option<i32>,
+    pub status_id: Option<i32>, 
+    pub creation_time: Option<NaiveDateTime>
+}
+
+impl StoredUser {
+    pub fn get_user(&self) -> User {
+        User { 
+            id: self.id, 
+            name: self.name.clone().unwrap(), 
+            email: self.email.clone().unwrap(), 
+            passwd: self.passwd.clone().unwrap(), 
+            verification_status_id: self.verification_status_id.unwrap(), 
+            status_id: self.status_id.unwrap(), 
+            creation_time: self.creation_time.unwrap_or_else(|| {
+                NaiveDate::from_ymd_opt(2000, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap()
+            }).timestamp()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct CreateUserBody {
+    pub name: String, 
+    pub email: String, 
+    pub password: String
+}
+
+#[derive(Deserialize)]
+pub struct ChangePasswordBody {
+    pub user_data: UserWebData,
+    pub old_password: String,
+    pub new_password: String
+}
+
+#[derive(Deserialize)]
+pub struct ChangeForgottenPasswordBody {
+    pub email: String
+}
+
+#[derive(Deserialize)]
+pub struct ChangeEmailBody {
+    pub user_data: UserWebData,
+    pub new_email: String
+}
+
+#[derive(Deserialize)]
+pub struct ChangeUsernameBody {
+    pub user_data: UserWebData,
+    pub new_name: String
+}
+
+#[derive(Deserialize)]
+pub struct DeleteUserBody {
+    pub user_data: UserWebData
+}
+
+// Boards
+
 #[derive(Serialize, Deserialize)]
 pub struct Board {
     pub id: i32, 
@@ -55,6 +147,7 @@ pub struct DeleteBoardBody {
 }
 
 
+// Tasks
 
 #[derive(Serialize, Deserialize)]
 pub struct Task {

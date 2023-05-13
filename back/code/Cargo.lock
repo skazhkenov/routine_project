@@ -583,6 +583,7 @@ version = "0.1.0"
 dependencies = [
  "actix",
  "actix-web",
+ "base64 0.21.0",
  "chrono",
  "dotenv",
  "log",
@@ -590,6 +591,7 @@ dependencies = [
  "redis",
  "serde",
  "serde_json",
+ "sha2",
  "sqlx",
 ]
 

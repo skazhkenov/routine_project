@@ -7,24 +7,17 @@ use redis::{Commands};
 use chrono::{NaiveDateTime};
 use log;
 
-use crate::{authorisation::{UserWebData, check_token}};
+use crate::{authorisation::{UserWebData, is_valid_token}};
 use crate::{PostgresDB, RedisDB};
 use crate::redis_handlers::{
     get_user_boards_from_redis, put_user_boards_to_redis, drop_user_boards_from_redis, 
     get_board_tasks_from_redis, put_board_tasks_to_redis, drop_board_tasks_from_redis
 };
 use crate::models::{
-    Board, StoredBoard, CreateBoardBody, UpdateBoardBody, DeleteBoardBody, 
+    ServerResponse, Board, StoredBoard, CreateBoardBody, UpdateBoardBody, DeleteBoardBody, 
     Task, StoredTask, GetTasksBody, CreateTaskBody, UpdateTaskBody, DeleteTaskBody
 };
-
 use crate::{APP_SCHEMA, BOARDS_TABLE, TASKS_TABLE};
-
-#[derive(Serialize)]
-pub struct ServerResponse {
-    status: i32, 
-    message: String
-}
 
 // Boards section
 
@@ -61,8 +54,8 @@ async fn get_user_boards(
     let db_link = &*postgres_db.db.lock().unwrap();
     let redis_conn = &mut *redis_db.db.lock().unwrap();
 
-    if check_token(
-        UserWebData {user_id, token: token.clone()}, 
+    if is_valid_token(
+        redis_conn, 
         UserWebData {user_id, token: token.clone()}
     ) {
         let redis_data = get_user_boards_from_redis(redis_conn, user_id);
@@ -140,8 +133,8 @@ async fn create_new_board(
     let db_link = &*postgres_db.db.lock().unwrap();
     let redis_conn = &mut *redis_db.db.lock().unwrap();
 
-    if check_token(
-        UserWebData {user_id, token: token.clone()}, 
+    if is_valid_token(
+        redis_conn, 
         UserWebData {user_id, token: token.clone()}
     ) {
         let query = format!(
@@ -199,8 +192,8 @@ async fn update_existed_board(
     let db_link = &*postgres_db.db.lock().unwrap();
     let redis_conn = &mut *redis_db.db.lock().unwrap();
 
-    if check_token(
-        UserWebData {user_id, token: token.clone()}, 
+    if is_valid_token(
+        redis_conn, 
         UserWebData {user_id, token: token.clone()}
     ) {
         let board_to_be_update_status = sqlx::query(
@@ -288,8 +281,8 @@ async fn delete_board(
 
     log::info!("User {} tried to delete board {}", user_id, id);
 
-    if check_token(
-        UserWebData {user_id, token: token.clone()}, 
+    if is_valid_token(
+        redis_conn, 
         UserWebData {user_id, token: token.clone()}
     )  {
         let board_is_valid_check = sqlx::query(
@@ -397,8 +390,8 @@ async fn get_board_tasks(
 
     log::info!("Tasks from board {} requested by user {}", board_id, user_id);
     
-    if check_token(
-        UserWebData {user_id, token: token.clone()}, 
+    if is_valid_token(
+        redis_conn, 
         UserWebData {user_id, token: token.clone()}
     ) {
 
@@ -507,8 +500,8 @@ async fn create_new_task(
     let db_link = &*postgres_db.db.lock().unwrap();
     let redis_conn = &mut *redis_db.db.lock().unwrap();
     
-    if check_token(
-        UserWebData {user_id, token: token.clone()}, 
+    if is_valid_token(
+        redis_conn, 
         UserWebData {user_id, token: token.clone()}
     ) {
         let is_valid_board = sqlx::query(
@@ -595,8 +588,8 @@ async fn update_existed_task(
     let db_link = &*postgres_db.db.lock().unwrap();
     let redis_conn = &mut *redis_db.db.lock().unwrap();
 
-    if check_token(
-        UserWebData {user_id, token: token.clone()}, 
+    if is_valid_token(
+        redis_conn, 
         UserWebData {user_id, token: token.clone()}
     ) {
         let task_to_be_update_status = sqlx::query(
@@ -711,8 +704,8 @@ async fn delete_task(
     let db_link = &*postgres_db.db.lock().unwrap();
     let redis_conn = &mut *redis_db.db.lock().unwrap();
 
-    if check_token(
-        UserWebData {user_id, token: token.clone()}, 
+    if is_valid_token(
+        redis_conn, 
         UserWebData {user_id, token: token.clone()}
     ) {
         let task_is_valid_check = sqlx::query(
@@ -785,3 +778,4 @@ async fn delete_task(
     }
     
 }
+
