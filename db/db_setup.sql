@@ -1,15 +1,30 @@
 CREATE SCHEMA IF NOT EXISTS routine_app;
 
 CREATE TABLE IF NOT EXISTS routine_app.customer (
-    id SERIAL PRIMARY KEY, 
+    id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY, 
     name VARCHAR(256),
     email VARCHAR(256), 
     passwd VARCHAR(256),
     verification_status_id INT, -- [0, 1, 2] 0 - pure, 1 - verified, 2 - expired
     status_id INT, -- [0, 1, 2, 3] 0 - pure, 1 - verified, 2 - expired, 3 - deleted
-    creation_time timestamp
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
 );
     
+CREATE OR REPLACE FUNCTION routine_app.set_updated_at()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$function$
+;
+
+CREATE TRIGGER trigger_updated_at_customer BEFORE
+UPDATE ON routine_app.customer FOR EACH ROW EXECUTE FUNCTION routine_app.set_updated_at();
+
 -- customer status table creation and update
 
 CREATE TABLE IF NOT EXISTS routine_app.customer_status (
@@ -91,10 +106,10 @@ CREATE TABLE IF NOT EXISTS routine_app.board (
     title VARCHAR(256),
     description VARCHAR(256), 
     status_id INT,
-    owner_id int REFERENCES routine_app.customer (id), 
-    creation_time timestamp
+    owner_id UUID REFERENCES routine_app.customer (id), 
+    creation_time TIMESTAMP NOT NULL DEFAULT now()
 );
-
+SELECT SETVAL('routine_app.board_id_seq', 100100);
 -- board status table creation and update
 
 CREATE TABLE IF NOT EXISTS routine_app.board_status (
@@ -124,12 +139,29 @@ CREATE TABLE IF NOT EXISTS routine_app.task (
     id SERIAL PRIMARY KEY, 
     title VARCHAR(256),
     description VARCHAR(256), 
-    board_id int REFERENCES routine_app.board (id), 
+    board_id INT REFERENCES routine_app.board (id), 
     status_id INT,
-    last_status_change_time timestamp,
-    creation_time timestamp
+    last_status_change_time TIMESTAMP NOT NULL DEFAULT now(),
+    creation_time TIMESTAMP NOT NULL DEFAULT now()
 );
+SELECT SETVAL('routine_app.task_id_seq', 100100);
 
+CREATE OR REPLACE FUNCTION routine_app.set_status_change_time()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+    NEW.last_status_change_time = now();
+    RETURN NEW;
+END;
+$function$
+;
+
+CREATE TRIGGER trigger_status_change_at_task 
+BEFORE UPDATE OF status_id ON routine_app.task 
+FOR EACH ROW 
+WHEN (OLD.status_id IS DISTINCT FROM NEW.status_id)
+EXECUTE FUNCTION routine_app.set_status_change_time();
 
 -- task status table creation and update
 

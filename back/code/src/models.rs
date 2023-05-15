@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 use chrono::{NaiveDateTime, NaiveDate};
-use sqlx::types::uuid::timestamp;
+use uuid::Uuid;
 
 // Common
 
@@ -14,13 +14,14 @@ pub struct ServerResponse {
 
 #[derive(Serialize, Deserialize)]
 pub struct User {
-    pub id: i32, 
+    pub id: Uuid, 
     pub name: String,
     pub email: String, 
     pub passwd: String,
     pub verification_status_id: i32,
     pub status_id: i32, 
-    pub creation_time: i64
+    pub created_at: i64,
+    pub updated_at: i64
 }
 
 #[derive(Serialize, Deserialize)]
@@ -31,13 +32,14 @@ pub struct UserCredentials {
 
 #[derive(Serialize, Deserialize)]
 pub struct StoredUser {
-    pub id: i32, 
+    pub id: Uuid, 
     pub name: Option<String>, 
     pub email: Option<String>, 
     pub passwd: Option<String>,
     pub verification_status_id: Option<i32>,
     pub status_id: Option<i32>, 
-    pub creation_time: Option<NaiveDateTime>
+    pub created_at: Option<NaiveDateTime>,
+    pub updated_at: Option<NaiveDateTime>
 }
 
 impl StoredUser {
@@ -49,7 +51,10 @@ impl StoredUser {
             passwd: self.passwd.clone().unwrap(), 
             verification_status_id: self.verification_status_id.unwrap(), 
             status_id: self.status_id.unwrap(), 
-            creation_time: self.creation_time.unwrap_or_else(|| {
+            created_at: self.created_at.unwrap_or_else(|| {
+                NaiveDate::from_ymd_opt(2000, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap()
+            }).timestamp(),
+            updated_at: self.updated_at.unwrap_or_else(|| {
                 NaiveDate::from_ymd_opt(2000, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap()
             }).timestamp()
         }

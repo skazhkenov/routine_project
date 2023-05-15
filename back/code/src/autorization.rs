@@ -16,17 +16,18 @@ use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use std::str::FromStr;
 use chrono;
+use uuid::Uuid;
 
 use crate::{TOKEN_LIFETIME, TOKEN_UPDATE_LIFETIME_THRESHOLD};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct JWToken {
-    user_id: i32, 
+    user_id: Uuid, 
     iat: i64
 }
 
 impl JWToken {
-    pub fn new(user_id: i32, iat: i64) -> Self {
+    pub fn new(user_id: Uuid, iat: i64) -> Self {
         JWToken { user_id, iat }
     }
 }
@@ -89,7 +90,6 @@ pub async fn validate_user(
                     let token_key = HeaderName::from_str("new_token").unwrap();
                     let token_value = HeaderValue::from_str(&updated_token).unwrap();
                     headers.append(token_key, token_value);
-                    println!(" ------> TOKEN UPDATED!!! ");
                 } 
 
                 Ok(request)

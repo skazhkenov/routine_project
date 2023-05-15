@@ -2,20 +2,13 @@
 extern crate log;
 extern crate log4rs;
 
-use std::sync::Mutex;
 use actix_web::{web, App, HttpServer};
-use actix_web_httpauth::{
-    extractors::{
-        bearer::{self, BearerAuth},
-        AuthenticationError,
-    },
-    middleware::HttpAuthentication, middleware::AuthenticationMiddleware
-};
-use sqlx::{postgres::{PgPoolOptions, self}, Postgres, Pool};
-use redis::{self, Commands, Connection as RedisConnection};
-use log4rs::config::{self, Config};
+use actix_web_httpauth::middleware::HttpAuthentication;
 
 mod autorization;
+mod app_config;
+mod databases;
+mod logging;
 mod users_managing;
 mod convertations;
 mod models;
@@ -23,66 +16,25 @@ mod redis_handlers;
 mod services;
 mod tools;
 
+pub use app_config::*;
 use autorization::validate_user;
 use users_managing::{authorized_users_managing, unauthorized_users_managing};
 use services::{boards_managing, tasks_managing};
-
-const HOST: &'static str = "0.0.0.0:5000";
-const REDIS_HOST: &'static str = "redis://192.168.0.103:4444";
-pub const SERVICE_URL: &'static str = "http://127.0.0.1:5000";
-
-// postgres data model
-pub const APP_SCHEMA: &'static str = "routine_app";
-pub const USERS_TABLE: &'static str = "customer";
-pub const BOARDS_TABLE: &'static str = "board";
-pub const TASKS_TABLE: &'static str = "task";
-
-// token lifetime
-
-pub const TOKEN_LIFETIME: i64 = 1200;
-pub const TOKEN_UPDATE_LIFETIME_THRESHOLD: i64 = 900;
-
-pub struct PostgresDB {
-    db: Mutex<Pool<Postgres>>
-}
-
-pub struct RedisDB {
-    db: Mutex<RedisConnection>
-}
+use databases::{init_persistent_database, init_cache_database};
+pub use databases::{PersistentDB, CacheDB};
+use logging::init_logger;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     
+    #[cfg(debug_assertions)]
     dotenv::dotenv().expect("Unable to load environment variables from .env file");
-    let db_url = std::env::var("DATABASE_URL").expect("Unable to read DATABASE_URL env var");
 
-    let log_config: Config = log4rs::config::load_config_file("log_config.yml", Default::default()).unwrap();
-    let log_handle: log4rs::Handle = log4rs::init_config(log_config).unwrap();
-
-    let postgres_pool = PgPoolOptions::new()
-        .max_connections(50)
-        .connect(&db_url)
-        .await
-        .expect("Unable to connect to Postgres");
-    
-    let redis_client = redis::Client::open(REDIS_HOST).unwrap();
-    let redis_connection = redis_client.get_connection().unwrap();
-
-    let postgres_db = web::Data::new(
-        PostgresDB {
-            db: Mutex::new(postgres_pool)
-        }
-    );
-    let redis_db = web::Data::new(
-        RedisDB {
-            db: Mutex::new(redis_connection)
-        }
-    );
-
-    log::info!("Start of application");
+    init_logger();
+    let postgres_db = init_persistent_database().await;
+    let redis_db = init_cache_database();
 
     HttpServer::new(move || {
-
         let authorization_middleware = HttpAuthentication::bearer(validate_user);
         App::new()
             .app_data(postgres_db.clone())
@@ -97,7 +49,7 @@ async fn main() -> std::io::Result<()> {
             )
     })
         .bind(HOST)?
-        .workers(3)
+        .workers(THREADS_COUNT)
         .run()
         .await
 
