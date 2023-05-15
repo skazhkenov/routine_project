@@ -2,8 +2,6 @@ use serde::{Serialize, Deserialize};
 use chrono::{NaiveDateTime, NaiveDate};
 use sqlx::types::uuid::timestamp;
 
-use crate::authorisation::UserWebData;
-
 // Common
 
 #[derive(Serialize)]
@@ -67,7 +65,6 @@ pub struct CreateUserBody {
 
 #[derive(Deserialize)]
 pub struct ChangePasswordBody {
-    pub user_data: UserWebData,
     pub old_password: String,
     pub new_password: String
 }
@@ -79,19 +76,12 @@ pub struct ChangeForgottenPasswordBody {
 
 #[derive(Deserialize)]
 pub struct ChangeEmailBody {
-    pub user_data: UserWebData,
     pub new_email: String
 }
 
 #[derive(Deserialize)]
 pub struct ChangeUsernameBody {
-    pub user_data: UserWebData,
     pub new_name: String
-}
-
-#[derive(Deserialize)]
-pub struct DeleteUserBody {
-    pub user_data: UserWebData
 }
 
 // Boards
@@ -127,14 +117,12 @@ impl StoredBoard {
 
 #[derive(Deserialize)]
 pub struct CreateBoardBody {
-    pub user_data: UserWebData,
     pub title: String, 
     pub description: String
 }
 
 #[derive(Deserialize)]
 pub struct UpdateBoardBody {
-    pub user_data: UserWebData,
     pub id: i32, 
     pub title: String, 
     pub description: String
@@ -142,7 +130,6 @@ pub struct UpdateBoardBody {
 
 #[derive(Deserialize)]
 pub struct DeleteBoardBody {
-    pub user_data: UserWebData,
     pub id: i32
 }
 
@@ -186,13 +173,11 @@ impl StoredTask {
 
 #[derive(Deserialize)]
 pub struct GetTasksBody {
-    pub user_data: UserWebData,
     pub board_id: i32
 }
 
 #[derive(Deserialize)]
 pub struct CreateTaskBody {
-    pub user_data: UserWebData,
     pub board_id: i32, 
     pub title: String, 
     pub description: String
@@ -200,7 +185,6 @@ pub struct CreateTaskBody {
 
 #[derive(Deserialize)]
 pub struct UpdateTaskBody {
-    pub user_data: UserWebData,
     pub id: i32, 
     pub board_id: i32, 
     pub title: String, 
@@ -210,7 +194,6 @@ pub struct UpdateTaskBody {
 
 #[derive(Deserialize)]
 pub struct DeleteTaskBody {
-    pub user_data: UserWebData,
     pub id: i32, 
     pub board_id: i32
 }

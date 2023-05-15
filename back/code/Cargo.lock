@@ -208,6 +208,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-web-httpauth"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6dda62cf04bc3a9ad2ea8f314f721951cfdb4cdacec4e984d20e77c7bb170991"
+dependencies = [
+ "actix-utils",
+ "actix-web",
+ "base64 0.13.1",
+ "futures-core",
+ "futures-util",
+ "log",
+ "pin-project-lite",
+]
+
+[[package]]
 name = "actix_derive"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -626,9 +641,13 @@ version = "0.1.0"
 dependencies = [
  "actix",
  "actix-web",
+ "actix-web-httpauth",
  "base64 0.21.0",
  "chrono",
  "dotenv",
+ "hmac",
+ "http",
+ "jwt",
  "lettre 0.10.4",
  "lettre_email",
  "log",
@@ -1459,6 +1478,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "445dde2150c55e483f3d8416706b97ec8e8237c307e5b7b4b8dd15e6af2a0730"
 dependencies = [
  "wasm-bindgen",
+]
+
+[[package]]
+name = "jwt"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6204285f77fe7d9784db3fdc449ecce1a0114927a51d5a41c4c7a292011c015f"
+dependencies = [
+ "base64 0.13.1",
+ "crypto-common",
+ "digest",
+ "hmac",
+ "serde",
+ "serde_json",
+ "sha2",
 ]
 
 [[package]]

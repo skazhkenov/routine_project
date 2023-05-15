@@ -9,6 +9,9 @@ edition = "2021"
 
 actix = "0.13.0"
 actix-web = "4.3.1"
+actix-web-httpauth = "0.8.0"
+http = "0.2.9"
+
 serde = { version = "1.0.145", features = ["derive"] }
 serde_json = "1.0.85"
 chrono = { version = "0.4.24", features = ["serde"] }
@@ -22,6 +25,9 @@ log4rs = "1.2.0"
 
 sha2 = "0.10.6"
 base64 = "0.21.0"
+
+jwt = "0.16.0"
+hmac = "0.12.1"
 
 lettre = "0.10.4"
 lettre_email = "0.9.4"

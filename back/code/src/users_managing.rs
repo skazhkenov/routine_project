@@ -1,67 +1,24 @@
-use actix_web::{web::{self, Data, Json}, Responder, HttpResponse};
+use actix_web::{web::{self, Data, Json}, HttpRequest, Responder, HttpResponse, cookie::{time::Duration, Cookie}};
 use serde::{Serialize, Deserialize};
 use sqlx::{self, Row};
 
-use redis::Commands;
 use chrono::{self, NaiveDateTime};
 use log;
 
 use crate::models::{
     ServerResponse, User, UserCredentials, CreateUserBody, ChangePasswordBody, 
-    ChangeForgottenPasswordBody, ChangeEmailBody, ChangeUsernameBody, DeleteUserBody, StoredUser
+    ChangeForgottenPasswordBody, ChangeEmailBody, ChangeUsernameBody, StoredUser
 };
-use crate::{PostgresDB, RedisDB, APP_SCHEMA, USERS_TABLE};
+use crate::{PostgresDB, RedisDB, APP_SCHEMA, USERS_TABLE, TOKEN_LIFETIME};
 use crate::redis_handlers::{
-    put_user_data_to_redis, get_user_data_by_email_from_redis, get_user_data_by_id_from_redis, get_user_data_lifetime_from_redis, 
-    drop_user_data_from_redis, put_user_token_to_redis, get_user_token_from_redis, drop_user_token_from_redis
+    put_user_data_to_redis, get_user_data_by_email_from_redis, 
+    get_user_data_by_id_from_redis, drop_user_data_from_redis
 };
+use crate::autorization::{JWToken, create_jwt};
 use crate::convertations::{AsHash, AsBase64, FromBase64};
 use crate::tools::{send_email, generate_random_string};
 
-#[derive(Serialize, Deserialize)]
-pub struct UserWebData {
-    pub user_id: i32, 
-    pub token: String
-}
-
-impl UserWebData {
-    pub fn id(&self) -> i32 {
-        self.user_id
-    } 
-    pub fn token(&self) -> String {
-        self.token.clone()
-    }
-}
-
-pub fn make_token(password: String) -> String {
-    let current_time = chrono::offset::Utc::now().naive_utc();
-    let token = format!("{}{}", password, current_time).as_hash();
-
-    token
-}
-
-pub fn is_valid_token(conn: &mut redis::Connection, web_token_data: UserWebData) -> bool {
-
-    let user_id = web_token_data.id();
-    let token = web_token_data.token();
-
-    if let Ok(stored_token) = get_user_token_from_redis(conn, user_id) {
-        if stored_token == token {
-            true
-        } else {
-            false
-        }
-    } else {
-        false
-    }
-}
-
-// fn send_verification_mail(email: String, user_id: i32, message: &str) {
-    
-//     println!("Verification mail for user {} sent to {}. {}", user_id, email, message);
-// }
-
-pub fn users_managing(cfg: &mut web::ServiceConfig) {
+pub fn unauthorized_users_managing(cfg: &mut web::ServiceConfig) {
     cfg
         .service(
             web::resource("/create_user")
@@ -69,15 +26,6 @@ pub fn users_managing(cfg: &mut web::ServiceConfig) {
         ).service(
             web::resource("/authorisation")
                 .route(web::post().to(check_user))
-        ).service(
-            web::resource("/change_username")
-                .route(web::put().to(change_user_name))
-        ).service(
-            web::resource("/change_password")
-                .route(web::put().to(change_user_password)) 
-        ).service(
-            web::resource("/change_user_email")
-                .route(web::put().to(change_user_email))
         ).service(
             web::resource("/forgot_password")
                 .route(web::put().to(change_forgotten_password))
@@ -87,11 +35,27 @@ pub fn users_managing(cfg: &mut web::ServiceConfig) {
         ).service(
             web::resource("/email_verification/{email}/{user_id}/{verification_token}")
                 .route(web::get().to(updated_email_verification))
+        );
+}
+
+pub fn authorized_users_managing(cfg: &mut web::ServiceConfig) {
+    cfg
+        .service(
+            web::resource("/change_username")
+                .route(web::put().to(change_user_name))
+        ).service(
+            web::resource("/change_password")
+                .route(web::put().to(change_user_password)) 
+        ).service(
+            web::resource("/change_user_email")
+                .route(web::put().to(change_user_email))
         ).service(
             web::resource("/logout")
                 .route(web::delete().to(logout))
         );
 }
+
+// unauthorized user managing
 
 async fn create_new_user(
     postgres_db: Data<PostgresDB>, 
@@ -156,7 +120,7 @@ async fn create_new_user(
                         new_user_id, 
                         verification_token
                     );
-                    // send_verification_mail(email, new_user_id, &message);
+
                     send_email(email, "New user activation", &message);
                     HttpResponse::Ok().json(ServerResponse {
                         status: 200, 
@@ -191,27 +155,11 @@ async fn check_user(
         if password == cached_user_data.passwd {
 
             let user_id = cached_user_data.id;
-            let token = make_token(password.clone());
-
-            if cached_user_data.verification_status_id == 3 {
-                let lifetime_rest_request = get_user_data_lifetime_from_redis(redis_conn, user_id);
-                match lifetime_rest_request {
-                    Ok(lifetime_rest) => {
-                        put_user_token_to_redis(redis_conn, user_id, token.clone(), Some(lifetime_rest));
-                    }, 
-                    Err(_) => {
-                        put_user_token_to_redis(redis_conn, user_id, token.clone(), Some(0));
-                    }
-                }
-            } else {
-                put_user_token_to_redis(redis_conn, user_id, token.clone(), None);
-            }
-
-            let user_token_json = UserWebData {
-                user_id, 
-                token
-            };
-            return HttpResponse::Ok().json(user_token_json);
+            let current_time = chrono::offset::Utc::now().naive_utc().timestamp();
+            let jwtoken = JWToken::new(user_id, current_time);
+            let token = create_jwt(jwtoken);
+            
+            return HttpResponse::Ok().cookie(Cookie::new("x-auth", &token)).json(token);
         }
     }
 
@@ -238,23 +186,22 @@ async fn check_user(
         })
         .fetch_all(db_link)
         .await;
+
     match result {
         Ok(stored_users) => {
             if stored_users.len() > 0 {
                 let stored_user = &stored_users[0];
                 if password == stored_user.passwd.clone().unwrap() {
                     
-                    let authorised_user = stored_user.get_user();
-                    put_user_data_to_redis(redis_conn, authorised_user, None);
-                    
-                    let token = make_token(password.clone());
-                    put_user_token_to_redis(redis_conn, stored_user.id, token.clone(), None);
+                    let authorized_user = stored_user.get_user();
+                    put_user_data_to_redis(redis_conn, authorized_user, None);
 
-                    let user_token_json = UserWebData {
-                        user_id: stored_user.id, 
-                        token: token
-                    };
-                    HttpResponse::Ok().json(user_token_json)
+                    let current_time = chrono::offset::Utc::now().naive_utc().timestamp();
+                    let jwtoken = JWToken::new(stored_user.id, current_time);
+                    let token = create_jwt(jwtoken);
+                    
+                    HttpResponse::Ok().cookie(Cookie::new("x-auth", &token)).json(token)
+
                 } else {
                     HttpResponse::BadRequest().json(ServerResponse {
                         status: 400, 
@@ -275,249 +222,6 @@ async fn check_user(
                 message: String::from("Internal server error")
             })
         }
-    }
-}
-
-async fn change_user_name(
-    postgres_db: Data<PostgresDB>, 
-    redis_db: Data<RedisDB>, 
-    request_data: Json<ChangeUsernameBody>) -> impl Responder {
-    
-    let ChangeUsernameBody {user_data, new_name} = request_data.0;
-    let user_id = user_data.id();
-    let token = user_data.token();
-
-    let db_link = &*postgres_db.db.lock().unwrap();
-    let redis_conn = &mut *redis_db.db.lock().unwrap();
-
-    if is_valid_token(
-        redis_conn, 
-        UserWebData {user_id, token: token.clone()}
-    ) {
-
-        let query = format!("
-            UPDATE {}.{}
-               SET name = $2
-             WHERE id = $1 
-               AND status_id = 1
-            ", 
-            APP_SCHEMA, 
-            USERS_TABLE
-        );
-        let result = sqlx::query(&query)
-            .bind(user_id)
-            .bind(new_name)
-            .execute(db_link)
-            .await;
-
-        match result {
-            Ok(_) => {
-                drop_user_data_from_redis(redis_conn, user_id);
-                HttpResponse::Ok().json(ServerResponse {
-                    status: 200, 
-                    message: String::from("User name updated")
-                })
-            }, 
-            Err(db_error) => {
-                log::error!("Database issue: {:?}", db_error);
-                HttpResponse::InternalServerError().json(ServerResponse {
-                    status: 500, 
-                    message: String::from("Internal server error")
-                })
-            }
-        }
-    } else {
-        log::warn!("Unauthorised user {} tried to get access", user_id);
-        HttpResponse::BadRequest().json(ServerResponse {
-            status: 400, 
-            message: String::from("Invalid user credentials")
-        })
-    }
-}
-
-async fn change_user_password(
-    postgres_db: Data<PostgresDB>, 
-    redis_db: Data<RedisDB>, 
-    request_data: Json<ChangePasswordBody>) -> impl Responder {
-
-    let ChangePasswordBody {user_data, old_password, new_password} = request_data.0;
-    let old_password = old_password.as_hash();
-    let new_password = new_password.as_hash();
-    let user_id = user_data.id();
-    let token = user_data.token();
-    
-    let db_link = &*postgres_db.db.lock().unwrap();
-    let redis_conn = &mut *redis_db.db.lock().unwrap();
-
-    if is_valid_token(
-        redis_conn, 
-        UserWebData {user_id, token: token.clone()}
-    ) {
-        let query: String;        
-        let redis_data = get_user_data_by_id_from_redis(redis_conn, user_id);
-        if let Ok(cached_user_data) = redis_data {
-            if old_password == cached_user_data.passwd {
-                query = format!("
-                    UPDATE {}.{}
-                       SET passwd = $2, verification_status_id = 1
-                     WHERE id = $1 
-                       AND status_id = 1
-                 RETURNING id
-                    ", 
-                    APP_SCHEMA, 
-                    USERS_TABLE
-                );
-            } else {
-                return HttpResponse::BadRequest().json(ServerResponse {
-                    status: 400, 
-                    message: String::from("Invalid password")
-                });
-            }
-        } else {
-            query = format!("
-                UPDATE {}.{}
-                   SET passwd = $2
-                 WHERE id = $1 
-                   AND status_id = 1
-                   AND passwd = '{}'
-             RETURNING id
-                ", 
-                APP_SCHEMA, 
-                USERS_TABLE, 
-                old_password
-            ); 
-        }
-
-        let result = sqlx::query(&query)
-            .bind(user_id)
-            .bind(new_password)
-            .fetch_all(db_link)
-            .await;
-
-        match result {
-            Ok(update_result) => {
-                if update_result.len() > 0 {
-                    drop_user_data_from_redis(redis_conn, user_id);
-                    drop_user_token_from_redis(redis_conn, user_id);
-
-                    HttpResponse::Ok().json(ServerResponse {
-                        status: 200, 
-                        message: String::from("Password updated")
-                    })
-                } else {
-                    HttpResponse::BadRequest().json(ServerResponse {
-                        status: 400, 
-                        message: String::from("Invalid password")
-                    })
-                }
-            }, 
-            Err(db_error) => {
-                log::error!("Database issue: {:?}", db_error);
-                HttpResponse::InternalServerError().json(ServerResponse {
-                    status: 500, 
-                    message: String::from("Internal server error")
-                })
-            }
-        }
-    } else {
-        log::warn!("Unauthorised user {} tried to get access", user_id);
-        HttpResponse::BadRequest().json(ServerResponse {
-            status: 400, 
-            message: String::from("Invalid user credentials")
-        })
-    }
-    
-}
-
-async fn change_user_email(
-    postgres_db: Data<PostgresDB>, 
-    redis_db: Data<RedisDB>, 
-    request_data: Json<ChangeEmailBody>) -> impl Responder {
-
-    let ChangeEmailBody { user_data, new_email } = request_data.0;
-    let user_id = user_data.id();
-    let token = user_data.token();
-
-    let db_link = &*postgres_db.db.lock().unwrap();
-    let redis_conn = &mut *redis_db.db.lock().unwrap();
-
-    if is_valid_token(
-        redis_conn, 
-        UserWebData {user_id, token: token.clone()}
-    ) {
-        let query = format!("
-            UPDATE {}.{}
-               SET verification_status_id = 4
-             WHERE id = $1 
-               AND status_id = 1
-         RETURNING id, name, email, passwd, verification_status_id, status_id, creation_time
-            ", 
-            APP_SCHEMA, 
-            USERS_TABLE
-        );
-        let result = sqlx::query(&query)
-            .bind(user_id)
-            .map(|row| {
-                StoredUser{
-                    id: row.get("id"),
-                    name: row.get("name"),
-                    email: row.get("email"), 
-                    passwd: row.get("passwd"), 
-                    verification_status_id: row.get("verification_status_id"), 
-                    status_id: row.get("status_id"), 
-                    creation_time: row.get("creation_time")
-                } 
-            })
-            .fetch_all(db_link)
-            .await;
-
-        match result {
-            Ok(stored_users) => {
-                if stored_users.len() > 0 {
-                    let stored_user = &stored_users[0].get_user();
-                    let verification_token = format!(
-                        "{}{}{}", 
-                        new_email, 
-                        stored_user.email, 
-                        stored_user.creation_time
-                    ).as_hash();
-
-                    drop_user_data_from_redis(redis_conn, user_id);
-                    let message = format!(
-                        "Click the link to verify your new email address {}/email_verification/{}/{}/{}", 
-                        crate::SERVICE_URL, 
-                        new_email.as_base64(), 
-                        user_id, 
-                        verification_token
-                    );
-                    // send_verification_mail(new_email, user_id, &message);
-                    send_email(new_email, "New email address verification", &message);
-
-                    HttpResponse::Ok().json(ServerResponse {
-                        status: 200, 
-                        message: String::from("Verification mail was sent")
-                    })
-                } else {
-                    HttpResponse::InternalServerError().json(ServerResponse {
-                        status: 500, 
-                        message: String::from("Internal server error")
-                    })
-                }
-            }, 
-            Err(db_error) => {
-                log::error!("Database issue: {:?}", db_error);
-                HttpResponse::InternalServerError().json(ServerResponse {
-                    status: 500, 
-                    message: String::from("Internal server error")
-                })
-            }
-        }
-    } else {
-        log::warn!("Unauthorised user {} tried to get access", user_id);
-        HttpResponse::BadRequest().json(ServerResponse {
-            status: 400, 
-            message: String::from("Invalid user credentials")
-        })
     }
 }
 
@@ -575,7 +279,6 @@ async fn change_forgotten_password(
                     status: 200, 
                     message: String::from("Email with new password sent")
                 })
-
                 
             } else {
                 HttpResponse::BadRequest().json(ServerResponse {
@@ -631,7 +334,7 @@ async fn start_email_verification(
             if stored_token == verification_token { // verification passed
                 let update_query = format!("
                     UPDATE {}.{}
-                       SET status_id = 1
+                       SET status_id = 1, verification_status_id = 1
                      WHERE id = $1 
                        AND status_id = 0
                     ", 
@@ -725,7 +428,6 @@ async fn updated_email_verification(
                         match update_result {
                             Ok(_) => {
                                 drop_user_data_from_redis(redis_conn, user_id);
-                                drop_user_token_from_redis(redis_conn, user_id);
                                 HttpResponse::Ok().body("Ok")
                             }, 
                             Err(db_error) => {
@@ -751,28 +453,287 @@ async fn updated_email_verification(
     }
 }
 
-async fn logout(
+// authorized user managing
+
+async fn change_user_name(
+    request: HttpRequest,
+    postgres_db: Data<PostgresDB>, 
     redis_db: Data<RedisDB>, 
-    user_data: Json<UserWebData>) -> impl Responder {
+    request_data: Json<ChangeUsernameBody>) -> impl Responder {
     
-    let UserWebData { user_id, token } = user_data.0;
+    let ChangeUsernameBody {new_name} = request_data.0;
+    let headers = request.headers();
+    let user_id: i32 = headers.get("user_id").unwrap().to_str().unwrap().parse().unwrap();
+
+    let db_link = &*postgres_db.db.lock().unwrap();
     let redis_conn = &mut *redis_db.db.lock().unwrap();
 
-    if is_valid_token(
-        redis_conn, 
-        UserWebData {user_id, token: token.clone()}
-    ) {
-        drop_user_data_from_redis(redis_conn, user_id);
-        drop_user_token_from_redis(redis_conn, user_id);
-        HttpResponse::Ok().json(ServerResponse {
-            status: 200, 
-            message: String::from("Logout")
-        })
-    } else {
-        HttpResponse::BadRequest().json(ServerResponse {
-            status: 400, 
-            message: String::from("Invalid user credentials")
-        })
+    let query = format!("
+        UPDATE {}.{}
+            SET name = $2
+            WHERE id = $1 
+            AND status_id = 1
+        ", 
+        APP_SCHEMA, 
+        USERS_TABLE
+    );
+    let result = sqlx::query(&query)
+        .bind(user_id)
+        .bind(new_name)
+        .execute(db_link)
+        .await;
+
+    match result {
+        Ok(_) => {
+            drop_user_data_from_redis(redis_conn, user_id);
+            if headers.contains_key("new_token") {
+                let token = headers.get("new_token").unwrap().to_str().unwrap();
+                HttpResponse::Ok().cookie(Cookie::new("x-auth", token)).json(ServerResponse {
+                    status: 200, 
+                    message: String::from("User name updated")
+                })
+            } else {
+                HttpResponse::Ok().json(ServerResponse {
+                    status: 200, 
+                    message: String::from("User name updated")
+                })
+            }
+        }, 
+        Err(db_error) => {
+            log::error!("Database issue: {:?}", db_error);
+            HttpResponse::InternalServerError().json(ServerResponse {
+                status: 500, 
+                message: String::from("Internal server error")
+            })
+        }
     }
 }
 
+async fn change_user_password(
+    request: HttpRequest,
+    postgres_db: Data<PostgresDB>, 
+    redis_db: Data<RedisDB>, 
+    request_data: Json<ChangePasswordBody>) -> impl Responder {
+
+    let ChangePasswordBody {old_password, new_password} = request_data.0;
+    let headers = request.headers();
+    let user_id: i32 = headers.get("user_id").unwrap().to_str().unwrap().parse().unwrap();
+
+    let old_password = old_password.as_hash();
+    let new_password = new_password.as_hash();
+    
+    let db_link = &*postgres_db.db.lock().unwrap();
+    let redis_conn = &mut *redis_db.db.lock().unwrap();
+
+    let query: String;        
+    let redis_data = get_user_data_by_id_from_redis(redis_conn, user_id);
+    if let Ok(cached_user_data) = redis_data {
+        if old_password == cached_user_data.passwd {
+            query = format!("
+                UPDATE {}.{}
+                    SET passwd = $2, verification_status_id = 1
+                    WHERE id = $1 
+                    AND status_id = 1
+                RETURNING id
+                ", 
+                APP_SCHEMA, 
+                USERS_TABLE
+            );
+        } else {
+            return HttpResponse::BadRequest().json(ServerResponse {
+                status: 400, 
+                message: String::from("Invalid password")
+            });
+        }
+    } else {
+        query = format!("
+            UPDATE {}.{}
+                SET passwd = $2
+                WHERE id = $1 
+                AND status_id = 1
+                AND passwd = '{}'
+            RETURNING id
+            ", 
+            APP_SCHEMA, 
+            USERS_TABLE, 
+            old_password
+        ); 
+    }
+
+    let result = sqlx::query(&query)
+        .bind(user_id)
+        .bind(new_password)
+        .fetch_all(db_link)
+        .await;
+
+    match result {
+        Ok(update_result) => {
+            if update_result.len() > 0 {
+                drop_user_data_from_redis(redis_conn, user_id);
+
+                if headers.contains_key("new_token") {
+                    let token = headers.get("new_token").unwrap().to_str().unwrap();
+                    HttpResponse::Ok().cookie(Cookie::new("x-auth", token)).json(ServerResponse {
+                        status: 200, 
+                        message: String::from("Password updated")
+                    })
+                } else {
+                    HttpResponse::Ok().json(ServerResponse {
+                        status: 200, 
+                        message: String::from("Password updated")
+                    })
+                }
+            } else {
+                HttpResponse::BadRequest().json(ServerResponse {
+                    status: 400, 
+                    message: String::from("Invalid password")
+                })
+            }
+        }, 
+        Err(db_error) => {
+            log::error!("Database issue: {:?}", db_error);
+            HttpResponse::InternalServerError().json(ServerResponse {
+                status: 500, 
+                message: String::from("Internal server error")
+            })
+        }
+    }
+    
+}
+
+async fn change_user_email(
+    request: HttpRequest,
+    postgres_db: Data<PostgresDB>, 
+    redis_db: Data<RedisDB>, 
+    request_data: Json<ChangeEmailBody>) -> impl Responder {
+
+    let ChangeEmailBody {new_email } = request_data.0;
+    let headers = request.headers();
+    let user_id: i32 = headers.get("user_id").unwrap().to_str().unwrap().parse().unwrap();
+
+    let db_link = &*postgres_db.db.lock().unwrap();
+    let redis_conn = &mut *redis_db.db.lock().unwrap();
+
+    let check_query = format!(
+        "SELECT 
+            id
+           FROM {}.{}
+          WHERE email = $1", 
+        APP_SCHEMA, 
+        USERS_TABLE
+    );
+    let check_result = sqlx::query(&check_query)
+        .bind(new_email.clone())
+        .fetch_all(db_link)
+        .await;
+
+    match check_result {
+        Ok(existed_users) => {
+            if existed_users.len() > 0 {
+                HttpResponse::BadRequest().json(ServerResponse {
+                    status: 400, 
+                    message: format!("User with email {} already exists", new_email)
+                })
+            } else {
+                let query = format!("
+                    UPDATE {}.{}
+                        SET verification_status_id = 4
+                        WHERE id = $1 
+                        AND status_id = 1
+                    RETURNING id, name, email, passwd, verification_status_id, status_id, creation_time
+                    ", 
+                    APP_SCHEMA, 
+                    USERS_TABLE
+                );
+                let result = sqlx::query(&query)
+                    .bind(user_id)
+                    .map(|row| {
+                        StoredUser{
+                            id: row.get("id"),
+                            name: row.get("name"),
+                            email: row.get("email"), 
+                            passwd: row.get("passwd"), 
+                            verification_status_id: row.get("verification_status_id"), 
+                            status_id: row.get("status_id"), 
+                            creation_time: row.get("creation_time")
+                        } 
+                    })
+                    .fetch_all(db_link)
+                    .await;
+
+                match result {
+                    Ok(stored_users) => {
+                        if stored_users.len() > 0 {
+                            let stored_user = &stored_users[0].get_user();
+                            let verification_token = format!(
+                                "{}{}{}", 
+                                new_email, 
+                                stored_user.email, 
+                                stored_user.creation_time
+                            ).as_hash();
+
+                            drop_user_data_from_redis(redis_conn, user_id);
+                            let message = format!(
+                                "Click the link to verify your new email address {}/email_verification/{}/{}/{}", 
+                                crate::SERVICE_URL, 
+                                new_email.as_base64(), 
+                                user_id, 
+                                verification_token
+                            );
+                            // send_verification_mail(new_email, user_id, &message);
+                            send_email(new_email, "New email address verification", &message);
+
+                            if headers.contains_key("new_token") {
+                                let token = headers.get("new_token").unwrap().to_str().unwrap();
+                                HttpResponse::Ok().cookie(Cookie::new("x-auth", token)).json(ServerResponse {
+                                    status: 200, 
+                                    message: String::from("Verification mail was sent")
+                                })
+                            } else {
+                                HttpResponse::Ok().json(ServerResponse {
+                                    status: 200, 
+                                    message: String::from("Verification mail was sent")
+                                })
+                            }
+                        } else {
+                            HttpResponse::InternalServerError().json(ServerResponse {
+                                status: 500, 
+                                message: String::from("Internal server error")
+                            })
+                        }
+                    }, 
+                    Err(db_error) => {
+                        log::error!("Database issue: {:?}", db_error);
+                        HttpResponse::InternalServerError().json(ServerResponse {
+                            status: 500, 
+                            message: String::from("Internal server error")
+                        })
+                    }
+                }
+            }
+        }, 
+        Err(db_error) => {
+            log::error!("Database issue: {:?}", db_error);
+            HttpResponse::InternalServerError().json(ServerResponse {
+                status: 500, 
+                message: String::from("Internal server error")
+            })
+        }
+    }
+}
+
+async fn logout(
+    request: HttpRequest,
+    redis_db: Data<RedisDB>) -> impl Responder {
+    
+    let headers = request.headers();
+    let user_id: i32 = headers.get("user_id").unwrap().to_str().unwrap().parse().unwrap();
+
+    let redis_conn = &mut *redis_db.db.lock().unwrap();
+    drop_user_data_from_redis(redis_conn, user_id);
+
+    let mut cookie = Cookie::new("x-auth", "");
+    cookie.set_max_age(Duration::seconds(0));
+
+    HttpResponse::Ok().cookie(cookie).body("Logout")
+}

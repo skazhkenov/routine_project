@@ -4,18 +4,27 @@ extern crate log4rs;
 
 use std::sync::Mutex;
 use actix_web::{web, App, HttpServer};
+use actix_web_httpauth::{
+    extractors::{
+        bearer::{self, BearerAuth},
+        AuthenticationError,
+    },
+    middleware::HttpAuthentication, middleware::AuthenticationMiddleware
+};
 use sqlx::{postgres::{PgPoolOptions, self}, Postgres, Pool};
 use redis::{self, Commands, Connection as RedisConnection};
 use log4rs::config::{self, Config};
 
-mod authorisation;
+mod autorization;
+mod users_managing;
 mod convertations;
 mod models;
 mod redis_handlers;
 mod services;
 mod tools;
 
-use authorisation::users_managing;
+use autorization::validate_user;
+use users_managing::{authorized_users_managing, unauthorized_users_managing};
 use services::{boards_managing, tasks_managing};
 
 const HOST: &'static str = "0.0.0.0:5000";
@@ -28,6 +37,10 @@ pub const USERS_TABLE: &'static str = "customer";
 pub const BOARDS_TABLE: &'static str = "board";
 pub const TASKS_TABLE: &'static str = "task";
 
+// token lifetime
+
+pub const TOKEN_LIFETIME: i64 = 1200;
+pub const TOKEN_UPDATE_LIFETIME_THRESHOLD: i64 = 900;
 
 pub struct PostgresDB {
     db: Mutex<Pool<Postgres>>
@@ -69,12 +82,19 @@ async fn main() -> std::io::Result<()> {
     log::info!("Start of application");
 
     HttpServer::new(move || {
+
+        let authorization_middleware = HttpAuthentication::bearer(validate_user);
         App::new()
             .app_data(postgres_db.clone())
             .app_data(redis_db.clone())
-            .configure(users_managing)
-            .configure(boards_managing)
-            .configure(tasks_managing)
+            .configure(unauthorized_users_managing)
+            .service(
+                web::scope("")
+                    .wrap(authorization_middleware)
+                    .configure(authorized_users_managing)
+                    .configure(boards_managing)
+                    .configure(tasks_managing)
+            )
     })
         .bind(HOST)?
         .workers(3)
