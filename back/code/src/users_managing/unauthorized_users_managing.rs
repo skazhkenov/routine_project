@@ -280,6 +280,7 @@ async fn handle_forgot_password(
                 stored_user.verification_status_id = 3;
 
                 put_user_data_to_redis(redis_conn, stored_user, Some(43200));
+
                 let message = format!(
                     "Your new temporary password {}. Would be valid in next 12 hours.", 
                     generated_password

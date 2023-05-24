@@ -133,9 +133,17 @@ pub fn put_board_tasks_to_redis(
     tasks: &[Task]) -> RedisResult<()> {
     let key = format!("board:{}:tasks", board_id);
 
+    let stored_tasks = get_board_tasks_from_redis(conn, board_id)?;
+    let stored_tasks_id_list: Vec<i32> = stored_tasks
+        .into_iter()
+        .map(|task| {task.id})
+        .collect();
+
     for task in tasks {
-        let json = serde_json::to_string(task).unwrap();
-        conn.rpush(&key, json)?;
+        if !stored_tasks_id_list.contains(&task.id) {
+            let json = serde_json::to_string(task).unwrap();
+            conn.rpush(&key, json)?;
+        }
     }
     conn.expire(&key, STORED_DATA_EXPIRATION_TIME)?;
     Ok(())

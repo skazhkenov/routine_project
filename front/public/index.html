@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Start page</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <header>
+    <div class="header-left">Routine</div>
+  </header>
+  <div class="container">
+    <h1 style="color: black">Log in</h1>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+    </form>
+
+    <button id="sign-button" class="sign-button" type="submit">Continue</button>
+    <button id="register-button" class="register-button" type="button">Sign up</button>
+    <p class="forgot-password"><a class="forgot-password-text" >Forgot password?</a></p>
+  </div>
+
+  <div id="forgotPasswordModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Forgot password</h2>
+      <form id="forgotPasswordForm">
+        <input type="email" id="email" placeholder="Email" required>
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- <button id="registerButton">Регистрация</button> -->
+
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Registration</h2>
+      <form id="registrationForm">
+        <input type="text" id="reg_username" placeholder="Username" required>
+        <input type="email" id="reg_email" placeholder="Email" required>
+        <input type="password" id="reg_password" placeholder="Password" required>
+        <button id="registration-submit"  type="submit">Continue</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="overlay">
+      <div class="loader"></div>
+  </div>
+
+
+  <script src="/jquery-3.6.0.min.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

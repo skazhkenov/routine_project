@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Boards</title>
+  <link rel="stylesheet" href="workspace.css">
+</head>
+
+<body>
+  <header>
+    <div class="header-left">Routine</div>
+    <div class="header-right"><a href="/account">My Account</a></div>
+  </header>
+
+  <div id="create-board-container">
+    <form id="create-board-form">
+      <input type="text" id="board-title" placeholder="New board's name" required>
+  
+      <textarea id="board-description" placeholder="Add some description (200 signs maximum)" required></textarea>
+  
+      <button type="submit">Create new board</button>
+    </form>
+  </div>
+
+  <div id="boardsContainer">
+    <div id="boardsList" class="grid-container"></div>
+  </div>
+
+  <div id="overlay">
+      <div class="loader"></div>
+  </div>
+  <script src="/jquery-3.6.0.min.js"></script>
+  <script src="workspace.js"></script>
+</body>
+</html>

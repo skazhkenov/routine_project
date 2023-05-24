@@ -1,0 +1,24 @@
+version: "3.5"
+services:
+  nginx_server:
+    depends_on:
+      - backend
+      - frontend
+    image: nginx:latest
+    restart: always
+    cap_add:
+      - ALL
+    volumes:
+      - /home/master/master_projects/boards/nginx/:/etc/nginx/conf.d
+    ports:
+      - 8080:80
+
+  backend:
+    build: ./back
+    container_name: rust_backend
+    restart: always
+
+  frontend:
+    build: ./front
+    container_name: node_front
+    restart: always

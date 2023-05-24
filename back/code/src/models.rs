@@ -141,7 +141,7 @@ pub struct DeleteBoardBody {
 
 // Tasks
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Task {
     pub id: i32, 
     pub title: String, 

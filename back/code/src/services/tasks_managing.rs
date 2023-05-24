@@ -7,11 +7,12 @@ use log;
 use sqlx::{self, Row};
 use uuid::Uuid;
 
-use crate::{PersistentDB, CacheDB, APP_SCHEMA, BOARDS_TABLE, TASKS_TABLE, TOKEN_LIFETIME};
+use crate::{PersistentDB, CacheDB, APP_SCHEMA, BOARDS_TABLE, TASKS_TABLE, TOKEN_LIFETIME, models::Board};
 use crate::redis_handlers::{
     get_board_tasks_from_redis, 
     put_board_tasks_to_redis, 
-    drop_board_tasks_from_redis
+    drop_board_tasks_from_redis, 
+    get_user_boards_from_redis
 };
 use crate::models::{
     ServerResponse, Task, StoredTask, GetTasksBody, 
@@ -23,6 +24,9 @@ pub fn tasks_managing(cfg: &mut web::ServiceConfig) {
         .service(
             web::resource("/board_tasks")
                 .route(web::get().to(handle_board_tasks))
+        ).service(
+            web::resource("/task/{task_id}")
+                .route(web::get().to(handle_task))
         )
         .service(
             web::resource("/create_task")
@@ -57,10 +61,10 @@ async fn handle_board_tasks(
         &format!("
             SELECT 
                 id
-                FROM {}.{} 
-                WHERE id = $1 
-                AND owner_id = $2 
-                AND status_id = 0", 
+            FROM {}.{} 
+            WHERE id = $1 
+            AND owner_id = $2 
+            AND status_id = 0", 
             APP_SCHEMA, 
             BOARDS_TABLE
         )
@@ -151,6 +155,129 @@ async fn handle_board_tasks(
     }
 }
 
+async fn handle_task(
+    request: HttpRequest,
+    postgres_db: Data<PersistentDB>, 
+    redis_db: Data<CacheDB>,
+    request_path: web::Path<i32>) -> impl Responder {
+
+    let headers = request.headers();
+    let user_id: Uuid = headers.get("user_id").unwrap().to_str().unwrap().parse().unwrap();
+    let board_id: i32 = headers.get("BoardId").unwrap().to_str().unwrap().parse().unwrap();
+    let task_id = request_path.into_inner();
+
+    let db_link = &*postgres_db.db.lock().unwrap();
+    let redis_conn = &mut *redis_db.db.lock().unwrap();
+
+    if let Ok(user_boards) = get_user_boards_from_redis(redis_conn, user_id) {
+        let mut target_board: Option<Board> = None;
+        for board in user_boards {
+            if board.id == board_id {
+                target_board = Some(board);
+                break;
+            }
+        }
+        match target_board {
+            Some(_) => {
+                if let Ok(tasks) = get_board_tasks_from_redis(redis_conn, board_id) {
+                    for task in tasks {
+                        if task.id == task_id {
+                            if headers.contains_key("new_token") {
+                                let token = headers.get("new_token").unwrap().to_str().unwrap();
+                                let mut cookie = Cookie::new("x-auth", token);
+                                cookie.set_max_age(Duration::seconds(TOKEN_LIFETIME));
+        
+                                return HttpResponse::Ok().cookie(cookie).json(task);
+                            } else {
+                                return HttpResponse::Ok().json(task);
+                            }
+                        }
+                    }
+                }
+            }, 
+            None => ()
+            }
+        }
+
+    let is_valid_task = sqlx::query(
+        &format!("
+            SELECT 
+                t.id
+            FROM {APP_SCHEMA}.{TASKS_TABLE} t
+            INNER JOIN {APP_SCHEMA}.{BOARDS_TABLE} b
+            ON t.board_id = b.id
+            WHERE t.id = $1 
+            AND t.board_id = $2
+            AND b.owner_id = $3 
+            AND t.status_id != 4
+            AND b.status_id = 0"
+        )
+    )
+        .bind(task_id)
+        .bind(board_id)
+        .bind(user_id)
+        .fetch_one(db_link)
+        .await;
+
+    match is_valid_task {
+        Ok(_) => {
+            let query = format!("
+                SELECT 
+                    t.id, t.title, t.description, t.board_id, t.status_id, t.last_status_change_time
+                FROM {APP_SCHEMA}.{TASKS_TABLE} t
+                WHERE t.status_id != 4 
+                AND t.board_id = $1 
+            ");
+            let result = sqlx::query(&query)
+                .bind(board_id)
+                .map(|row| {
+                    StoredTask {
+                        id: row.get("id"),
+                        title: row.get("title"),
+                        description: row.get("description"),
+                        board_id: row.get("board_id"), 
+                        status_id: row.get("status_id"), 
+                        last_status_change_time: row.get("last_status_change_time")
+                    } 
+                })
+                .fetch_all(db_link)
+                .await; 
+
+            match result {
+                Ok(tasks) => {
+                    let target_task = tasks[0].get_task();
+
+                    put_board_tasks_to_redis(redis_conn, board_id, &[target_task.clone()]);
+
+                    if headers.contains_key("new_token") {
+                        let token = headers.get("new_token").unwrap().to_str().unwrap();
+                        let mut cookie = Cookie::new("x-auth", token);
+                        cookie.set_max_age(Duration::seconds(TOKEN_LIFETIME));
+
+                        HttpResponse::Ok().cookie(cookie).json(target_task)
+                    } else {
+                        HttpResponse::Ok().json(target_task)
+                    }
+                }, 
+                Err(db_error) => {
+                    log::error!("Database issue: {:?}", db_error);
+                    HttpResponse::InternalServerError().json(ServerResponse {
+                        status: 500, 
+                        message: String::from("Internal server error")
+                    })
+                }
+            }
+        }, 
+        Err(_) => {
+            log::warn!("User {} tried to request non-matching values: task {} from board {}", user_id, task_id, board_id);
+            HttpResponse::BadRequest().json(ServerResponse {
+                status: 400, 
+                message: String::from("Invalid request")
+            })
+        }
+    }
+}
+
 async fn handle_create_task(
     request: HttpRequest,
     postgres_db: Data<PersistentDB>, 
@@ -170,10 +297,10 @@ async fn handle_create_task(
         &format!("
             SELECT 
                 id
-                FROM {}.{} 
-                WHERE id = $1 
-                AND owner_id = $2 
-                AND status_id = 0", 
+            FROM {}.{} 
+            WHERE id = $1 
+            AND owner_id = $2 
+            AND status_id = 0", 
             APP_SCHEMA, 
             BOARDS_TABLE
         )

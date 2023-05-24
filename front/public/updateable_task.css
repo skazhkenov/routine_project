@@ -1,0 +1,191 @@
+.message {
+  display: none;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background-color: #303f9f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  color: #fff;
+  font-family: "Roboto", Arial, sans-serif;
+}
+
+.header-left {
+  text-decoration: none;
+  font-family: 'Roboto', Arial, sans-serif;
+  font-weight: bold;
+  font-size: 54px;
+}
+
+.header-right a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 26px;
+  transition: color 0.3s ease;
+}
+
+.header-right a:hover {
+  color: #e3e3e3;
+}
+
+#board-link {
+  text-decoration: none;
+  color: #fff;
+}
+
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); 
+  z-index: 9999; 
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.loader {
+  border: 16px solid #f3f3f3; 
+  border-top: 16px solid #0d1f3d; 
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+body {
+  font-family: Arial, sans-serif;
+  margin-top: 100px;
+}
+
+h1 {
+  text-align: center;
+}
+
+#taskContent {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #d3eced; 
+  border-radius: 5px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+#title {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box; 
+  padding: 8px;
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+#description {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box; 
+  padding: 8px;
+  font-size: 13px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  height: 150px;
+  tab-size: 4;
+  -moz-tab-size: 4; /* Firefox */
+}
+
+
+select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+
+#saveButton {
+  width: 48.5%;
+  padding: 10px 20px;
+  background-color: '#ccc';
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 15px;
+  margin-top: 5px;
+}
+
+#saveButton:disabled {
+  background-color: #ccc;
+}
+
+#saveButton:enabled {
+  background-color: #37b342;
+}
+
+#saveButton:hover:enabled {
+  background-color: #54cc5e;
+}
+
+#deleteButton {
+  width: 48.5%;
+  padding: 10px 20px;
+  background-color: #ba7568;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 15px;
+  margin-top: 5px;
+}
+
+#deleteButton:hover {
+  background-color: #c98c81;
+}
+
+
+
+.task-creation-time {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 10px;
+}
+
+
+
+
+

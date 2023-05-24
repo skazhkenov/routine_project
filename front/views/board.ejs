@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Tasks</title>
+  <link rel="stylesheet" href="/board.css">
+</head>
+<body>
+  <header>
+    <div class="header-left"><a id="main-page-link" href="/boards">Back to boards</a></div>
+    <div class="header-right"><a href="/account">My Account</a></div>
+  </header>
+
+  <div id="create-board-container">
+    <form id="create-board-form">
+
+      <input type="text" id="board-title" placeholder="Board name" required>
+  
+      <textarea id="board-description" placeholder="Board description (200 signs maximum)" required></textarea>
+  
+      <button id="update-button" type="button">Update board</button>
+      <button id="delete-button" type="button">Delete board</button>
+      <button id="createTaskButton" type="button">Create new task</button>
+    </form>
+  </div>
+
+  <div id="boardContainer">
+
+    <div id="listsContainer" class="lists-container"></div>
+
+  </div>
+
+  <div id="overlay">
+      <div class="loader"></div>
+  </div>
+
+  <div id="createTaskModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2 id="new-task">New task</h2>
+      <div id="content-form">
+      <form id="createTaskForm">
+        <input type="text" id="task-title" placeholder="Enter new task's name" required>
+        <textarea id="task-description" placeholder="Enter description (2000 signs maximum)" required></textarea>
+        <button id="create-new-task" type="submit">Create </button>
+      </form>
+      </div>
+    </div>
+  </div>
+
+  <a class="message"><%= board_id %></a>
+
+  <script src="/jquery-3.6.0.min.js"></script>
+  <script src="/board.js"></script>
+</body>
+</html>

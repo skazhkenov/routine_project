@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Account</title>
+  <link rel="stylesheet" href="/account.css">
+</head>
+<body>
+    <header>
+        <div class="header-left"><a id="main-page-link" href="/">Routine</a></div>
+    </header>
+
+    <div id="profile-container">
+    <h2 id="profile-name"></h2>
+    <p id="profile-email"></p>
+
+    <button id="change-name-btn" class="change-btn">Change name</button></br>
+    <button id="change-email-btn" class="change-btn">Change email</button></br>
+    <button id="change-password-btn" class="change-btn">Change password</button></br>
+    <button id="logout" class="change-btn">Logout</button>
+    </div>
+
+    <div id="changeNameModal" class="modal">
+        <div id="change-name-popup" class="popup">
+            <span class="close">&times;</span>
+            <h3>Change username</h3>
+            <form id="change-name-form">
+                <input type="text" id="new-name-input" placeholder="New username">
+                <button type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="changeEmailModal" class="modal">
+        <div id="change-email-popup" class="popup">
+        <span class="close">&times;</span>
+        <h3>Change email</h3>
+        <form id="change-email-form">
+            <input type="email" id="new-email-input" placeholder="New email">
+            <button type="submit">Save</button>
+        </form>
+        </div>
+    </div>
+
+    <div id="changePasswordModal" class="modal">
+        <div id="change-password-popup" class="popup">
+        <span class="close">&times;</span>
+        <h3>Change password</h3>
+        <form id="change-password-form">
+            <input type="password" id="old-password-input" placeholder="Current password">
+            <input type="password" id="new-password-input" placeholder="New password">
+            <input type="password" id="new-password-input2" placeholder="Repeat new password">
+            <button type="submit">Save</button>
+        </form>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <div class="loader"></div>
+    </div>
+      
+
+    <script src="/jquery-3.6.0.min.js"></script>
+    <script src="/account.js"></script>
+
+</body>
+</html>

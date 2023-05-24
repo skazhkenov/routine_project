@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task</title>
+  <link type="text/css" rel="stylesheet" href="/updateable_task.css">
+</head>
+
+  <header>
+    <div class="header-left"><a id="board-link" href="">Return to all tasks</a></div>
+    <div class="header-right"><a href="/account">My Account</a></div>
+  </header>
+
+<body>
+
+  <h1>Task Details</h1>
+  <div id="taskContent">
+    <div id="taskCreationTime" class="task-creation-time"></div>
+    <div>
+      <label for="status">Status:</label>
+      <select id="status">
+
+      </select>
+    </div>
+    <div>
+      <div id="title" contenteditable="true">Task Title</div>
+    </div>
+    <div>
+      <textarea id="description" placeholder="Enter description (2000 signs maximum)">Task Description</textarea>
+    </div>
+    <div class="button-container">
+      <button id="saveButton" disabled>Save changes</button>
+      <button id="deleteButton">Delete task</button>
+    </div>
+    
+  </div>
+
+
+
+  <a class="message message-board"><%= board_id %></a>
+  <a class="message message-task"><%= task_id %></a>
+
+  <div id="overlay">
+      <div class="loader"></div>
+  </div>
+
+  <script src="/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="/updateable_task.js"></script>
+</body>
+</html>
