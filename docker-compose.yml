@@ -11,14 +11,36 @@ services:
     volumes:
       - /home/master/master_projects/boards/nginx/:/etc/nginx/conf.d
     ports:
-      - 8080:80
+      - 80:80
+
+  frontend:
+    depends_on:
+      - backend
+    build: ./front
+    container_name: node_front
+    restart: always
 
   backend:
+    depends_on:
+      - redis_db
+      - postgres_db
     build: ./back
     container_name: rust_backend
     restart: always
 
-  frontend:
-    build: ./front
-    container_name: node_front
+  redis_db:
+    image: redis:latest
+    container_name: redis_routine
     restart: always
+
+  postgres_db:
+    image: postgres:14.5-bullseye
+    container_name: postgres_routine
+    restart: always
+    cap_add:
+      - ALL
+    ports:
+      - 5432:5432
+    volumes:
+      - /routine_data:/var/lib/postgresql/data
+

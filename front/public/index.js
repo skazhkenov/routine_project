@@ -143,37 +143,48 @@ jQuery('document').ready(async function(){
       var email = $("#reg_email").val();
 
       jQuery('#registration-submit').on('click', async function(){
-        showOverlay();
-        let new_user_credentials = {
-            "name": username,
-            "email": email,
-            "password": password
-        };
-        console.log(new_user_credentials);
-        let user_registration_result = await fetch('/create_user', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json;charset=utf-8'
-          },
-          body: JSON.stringify(new_user_credentials)
-        });
-  
-        let user_registration_status = user_registration_result.status;
-        if (user_registration_status == 200) {
-          hideOverlay();
-          alert("You've successfully registrated.\nCheck verification message, we've sent to \nyour email and finish your authentification.");
-          
-          $("#registerModal").css("display", "none");
-        } else if (user_registration_status == 400) {
 
-          hideOverlay();
-          let message = "Invalid credentials";
-          console.log(user_registration_status, user_registration_result.body);
-          alert(message);
+        if ((password.length >= 10) && (password.length <= 64)) {
+
+          showOverlay();
+          let new_user_credentials = {
+              "name": username,
+              "email": email,
+              "password": password
+          };
+          console.log(new_user_credentials);
+          let user_registration_result = await fetch('/create_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(new_user_credentials)
+          });
+    
+          let user_registration_status = user_registration_result.status;
+          if (user_registration_status == 200) {
+            hideOverlay();
+            alert("You've successfully registrated.\nCheck verification message, we've sent to \nyour email and finish your authentification.");
+            
+            $("#registerModal").css("display", "none");
+          } else if (user_registration_status == 400) {
+
+            hideOverlay();
+            let message = "Invalid credentials";
+            console.log(user_registration_status, user_registration_result.body);
+            alert(message);
+          } else {
+            hideOverlay();
+            alert("Unexpected issue happened. \nPlease try later.");
+          } 
+
         } else {
-          hideOverlay();
-          alert("Unexpected issue happened. \nPlease try later.");
-        } 
+          if (password.length < 10) {
+            alert("Password length couldn't be less than 10 signs");
+          } else {
+            alert("Password length couldn't be greater than 64 signs");
+          }
+        }
       });
 
     });

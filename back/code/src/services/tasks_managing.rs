@@ -45,12 +45,11 @@ pub fn tasks_managing(cfg: &mut web::ServiceConfig) {
 async fn handle_board_tasks(
     request: HttpRequest,
     postgres_db: Data<PersistentDB>, 
-    redis_db: Data<CacheDB>, 
-    request_data: Json<GetTasksBody>) -> impl Responder {
+    redis_db: Data<CacheDB>) -> impl Responder {
 
-    let GetTasksBody {board_id} = request_data.0;
     let headers = request.headers();
     let user_id: Uuid = headers.get("user_id").unwrap().to_str().unwrap().parse().unwrap();
+    let board_id: i32 = headers.get("BoardId").unwrap().to_str().unwrap().parse().unwrap();
 
     let db_link = &*postgres_db.db.lock().unwrap();
     let redis_conn = &mut *redis_db.db.lock().unwrap();

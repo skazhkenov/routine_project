@@ -214,64 +214,74 @@ $(document).ready(async function() {
             const newPassword = newPasswordInput.value;
             const repeatPassword = repeatPasswordInput.value;
 
-            if (newPassword == repeatPassword) {
-                if (oldPassword != newPassword) {
-            
-                    // Отправить запрос на изменение пароля пользователя на newPassword
-                    // ...
+            if ((newPassword.length >= 10) && (newPassword.length <= 64)) {
 
-                    let changePassRequestBody = {
-                        "old_password": oldPassword,
-                        "new_password": newPassword
-                    };
+                if (newPassword == repeatPassword) {
+                    if (oldPassword != newPassword) {
+                
+                        // Отправить запрос на изменение пароля пользователя на newPassword
+                        // ...
 
-                    showOverlay();
-                    let changePassRequest = await fetch('/change_password', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json;charset=utf-8', 
-                            'Authorization': 'Bearer ' + token
-                        }, 
-                        body: JSON.stringify(changePassRequestBody)
-                    });
+                        let changePassRequestBody = {
+                            "old_password": oldPassword,
+                            "new_password": newPassword
+                        };
 
-                    let changePassRequestStatus = changePassRequest.status;
-                    console.log(changePassRequestStatus);
-                    if (changePassRequestStatus == 200) {
+                        showOverlay();
+                        let changePassRequest = await fetch('/change_password', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json;charset=utf-8', 
+                                'Authorization': 'Bearer ' + token
+                            }, 
+                            body: JSON.stringify(changePassRequestBody)
+                        });
 
-                        hideOverlay();
-                        alert("Password successfully changed.");
+                        let changePassRequestStatus = changePassRequest.status;
+                        console.log(changePassRequestStatus);
+                        if (changePassRequestStatus == 200) {
 
-                        $(".popup").css("display", "none");
-                        $(".modal").css("display", "none");
+                            hideOverlay();
+                            alert("Password successfully changed.");
 
-                        // Обновить отображение имени пользователя
+                            $(".popup").css("display", "none");
+                            $(".modal").css("display", "none");
+
+                            // Обновить отображение имени пользователя
+                            
+                            oldPasswordInput.value = '';
+                            newPasswordInput.value = '';
+                            repeatPasswordInput.value = '';
+
+                            await logOut(token);
+
+                        } else {
+                            hideOverlay();
+                            alert("Something goes wrong.\nPlease try later.")
+                        }
                         
-                        oldPasswordInput.value = '';
+                        // changePasswordPopup.style.display = 'none';
+
+                        // Показать сообщение об успешном изменении пароля, если требуется
+                        // ...
+                    } else {
+                        alert("New password couldn't be the same as current!");
                         newPasswordInput.value = '';
                         repeatPasswordInput.value = '';
-
-                        await logOut(token);
-
-                    } else {
-                        hideOverlay();
-                        alert("Something goes wrong.\nPlease try later.")
                     }
                     
-                    // changePasswordPopup.style.display = 'none';
-
-                    // Показать сообщение об успешном изменении пароля, если требуется
-                    // ...
                 } else {
-                    alert("New password couldn't be the same as current!");
+                    
+                    alert("Repeated password is not equal to new password!");
                     newPasswordInput.value = '';
                     repeatPasswordInput.value = '';
                 }
-                
             } else {
-                alert("Repeated password is not equal to new password!");
-                newPasswordInput.value = '';
-                repeatPasswordInput.value = '';
+                if (newPassword.length < 10) {
+                    alert("Password length couldn't be less than 10 signs");
+                } else {
+                    alert("Password length couldn't be greater than 64 signs");
+                }
             }
         });
 
