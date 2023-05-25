@@ -37,6 +37,8 @@ services:
       - LOGIN
       - PASSWORD
       - JWT_SECRET_KEY
+    volumes:
+      - /routine_logs:/app_logs
 
   redis_db:
     image: redis:latest

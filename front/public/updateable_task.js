@@ -85,7 +85,6 @@ $(document).ready(async function() {
         let originalDescription = taskData['description'];
         let taskStatus = taskData['status_id'];
         let originalStatus = statusMap[taskStatus];
-        console.log(originalStatus);
 
         const textarea = document.getElementById('description');
 
@@ -137,7 +136,6 @@ $(document).ready(async function() {
                 });
         
                 let task_update_request_status = task_update_request.status; 
-                console.log(task_update_request_status);
                 if (task_update_request_status == 200) {
                     hideOverlay();
 
@@ -151,9 +149,6 @@ $(document).ready(async function() {
                     hideOverlay();
                     alert('Unexpected issue happened. \nPlease try later.');  
                 }
-
-
-                console.log(originalStatus);
 
                 saveButton.disabled = true;
             }

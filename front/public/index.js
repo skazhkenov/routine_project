@@ -42,7 +42,6 @@ jQuery('document').ready(async function(){
 
       });
       let login_result = user_data_value.status; 
-      console.log(login_result);
 
       if (login_result == 200) {
 
@@ -83,7 +82,6 @@ jQuery('document').ready(async function(){
       showOverlay();
 
       var email = $("#email").val();
-      console.log(email);
 
       let forgot_password_request = await fetch('/forgot_password', {
         method: 'PUT',
@@ -97,7 +95,6 @@ jQuery('document').ready(async function(){
 
       let forgot_password_status = forgot_password_request.status;
 
-      console.log(forgot_password_status);
       if (forgot_password_status == 200) {
         hideOverlay();
         alert(`Temporary password sent to email address: ${email}`);
@@ -140,7 +137,6 @@ jQuery('document').ready(async function(){
               "email": email,
               "password": password
           };
-          console.log(new_user_credentials);
           let user_registration_result = await fetch('/create_user', {
             method: 'POST',
             headers: {
@@ -159,7 +155,6 @@ jQuery('document').ready(async function(){
 
             hideOverlay();
             let message = "Invalid credentials";
-            console.log(user_registration_status, user_registration_result.body);
             alert(message);
           } else {
             hideOverlay();

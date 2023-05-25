@@ -2,19 +2,6 @@ $(document).ready(async function() {
 
     if (theCookieExist('x-auth')) {
 
-        async function logOut(auth_token) {
-            showOverlay();
-            let out = await fetch('/logout', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json;charset=utf-8', 
-                    'Authorization': 'Bearer ' + auth_token
-                }
-            });
-            hideOverlay();
-            window.location.href = '/';
-        }
-
         let token = getCookieValue('x-auth');
         let check_login = await fetch('/get_user', {
             method: 'GET',
@@ -33,10 +20,9 @@ $(document).ready(async function() {
         let user_data;
 
         if (check_login_status == 200) {
-            console.log('Ok');
             user_data = await check_login.json();
-            profileData.name = user_data[0].name;
-            profileData.email = user_data[0].email;
+            profileData.name = user_data.name;
+            profileData.email = user_data.email;
         } else {
             window.location.href = '/';
         };
@@ -301,4 +287,17 @@ function showOverlay() {
     
 function hideOverlay() {
     document.getElementById("overlay").style.display = "none";
+}
+
+async function logOut(auth_token) {
+    showOverlay();
+    let out = await fetch('/logout', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8', 
+            'Authorization': 'Bearer ' + auth_token
+        }
+    });
+    hideOverlay();
+    window.location.href = '/';
 }

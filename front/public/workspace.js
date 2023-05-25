@@ -22,7 +22,6 @@ $(document).ready(async function() {
     if (request_result == 200) {
       var boardsList = $('#boardsList');
 
-      console.log('Successfully got boards');
       let boards_data = await boards_data_request.json();
 
       boards_data.forEach(function(board) {

@@ -76,7 +76,7 @@ async fn handle_get_user(
 
     let query = format!("
         SELECT 
-            id, name, email
+            id, name, email, passwd, verification_status_id, status_id, created_at, updated_at
         FROM {}.{}
         WHERE status_id = 1
         ", 
