@@ -8,6 +8,6 @@ COPY ./code/log_config.yml /app/log_config.yml
 COPY ./code/.env /app/.env
 COPY ./docker-entrypoint.sh /root/docker-entrypoint.sh
 
-RUN cargo build
+RUN cargo build --release
 
 CMD ["/app/target/debug/code"]

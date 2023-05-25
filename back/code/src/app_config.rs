@@ -1,6 +1,6 @@
 // main urls
 pub const HOST: &'static str = "0.0.0.0:5000";
-pub const SERVICE_URL: &'static str = "http://127.0.0.1:5000";
+pub const SERVICE_URL: &'static str = "https://dev-home-project-r001.site";
 
 // threads count
 pub const THREADS_COUNT: usize = 3;

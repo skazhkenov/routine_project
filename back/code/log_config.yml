@@ -3,7 +3,7 @@ appenders:
     kind: console
   file:
     kind: file
-    path: "logs/app.log"
+    path: "/app_logs/app.log"
     encoder:
       pattern: "{l} {d(%Y-%m-%d %H:%M:%S)} {t} - {m}{n}"
 root:
