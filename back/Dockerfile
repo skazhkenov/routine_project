@@ -10,4 +10,4 @@ COPY ./docker-entrypoint.sh /root/docker-entrypoint.sh
 
 RUN cargo build --release
 
-CMD ["/app/target/debug/code"]
+CMD ["/app/target/release/code"]
