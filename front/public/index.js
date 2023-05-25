@@ -1,23 +1,6 @@
 jQuery('document').ready(async function(){
 
-  function timeSleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  function getCookieValue(cookieName) {
-    const cookie = document.cookie.match('(^|;)\\s*' + cookieName + '\\s*=\\s*([^;]+)');
-    return cookie ? cookie.pop() : '';
-  }
-
-  function showOverlay() {
-      document.getElementById("overlay").style.display = "flex";
-  }
-    
-  function hideOverlay() {
-      document.getElementById("overlay").style.display = "none";
-  }
-
-  let check_authorisation_request = await fetch('/user_boards', {
+  let check_authorisation_request = await fetch('/get_user', {
     method: 'GET',
     headers: {
         'Content-Type': 'application/json;charset=utf-8', 
@@ -190,3 +173,20 @@ jQuery('document').ready(async function(){
     });
   });
 });
+
+function timeSleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getCookieValue(cookieName) {
+  const cookie = document.cookie.match('(^|;)\\s*' + cookieName + '\\s*=\\s*([^;]+)');
+  return cookie ? cookie.pop() : '';
+}
+
+function showOverlay() {
+    document.getElementById("overlay").style.display = "flex";
+}
+  
+function hideOverlay() {
+    document.getElementById("overlay").style.display = "none";
+}

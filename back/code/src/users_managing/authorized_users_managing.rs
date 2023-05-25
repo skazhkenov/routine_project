@@ -8,13 +8,12 @@ use sqlx::{self, Row};
 use uuid::Uuid;
 
 use crate::models::{
-    ServerResponse, ChangePasswordBody, 
+    Profile, ServerResponse, ChangePasswordBody, 
     ChangeEmailBody, ChangeUsernameBody, StoredUser
 };
 use crate::{PersistentDB, CacheDB, APP_SCHEMA, USERS_TABLE, TOKEN_LIFETIME};
 use crate::redis_handlers::{
-    get_user_data_by_id_from_redis, 
-    drop_user_data_from_redis
+    put_user_data_to_redis, get_user_data_by_id_from_redis, drop_user_data_from_redis
 };
 use crate::convertations::{AsHash, AsBase64};
 use crate::tools::{send_email, is_valid_password, is_valid_email};
@@ -22,6 +21,9 @@ use crate::tools::{send_email, is_valid_password, is_valid_email};
 pub fn authorized_users_managing(cfg: &mut web::ServiceConfig) {
     cfg
         .service(
+            web::resource("/get_user")
+                .route(web::get().to(handle_get_user))
+        ).service(
             web::resource("/change_username")
                 .route(web::put().to(handle_change_username))
         ).service(
@@ -34,6 +36,112 @@ pub fn authorized_users_managing(cfg: &mut web::ServiceConfig) {
             web::resource("/logout")
                 .route(web::delete().to(handle_logout))
         );
+}
+
+async fn handle_get_user(
+    request: HttpRequest,
+    postgres_db: Data<PersistentDB>, 
+    redis_db: Data<CacheDB>) -> impl Responder {
+
+    let headers = request.headers();
+    let user_id: Uuid = headers.get("user_id").unwrap().to_str().unwrap().parse().unwrap();
+    log::info!("Requested profile data for user: `{}`", user_id);
+
+    let db_link = &*postgres_db.db.lock().unwrap();
+    let redis_conn = &mut *redis_db.db.lock().unwrap();
+
+    let redis_data = get_user_data_by_id_from_redis(redis_conn, user_id);
+    if let Ok(cached_user_data) = redis_data {
+        let username: String = cached_user_data.name;
+        let email: String = cached_user_data.email;
+
+        if headers.contains_key("new_token") {
+            let token = headers.get("new_token").unwrap().to_str().unwrap();
+            let mut cookie = Cookie::new("x-auth", token);
+            cookie.set_max_age(Duration::seconds(TOKEN_LIFETIME));
+
+            return HttpResponse::Ok().cookie(cookie).json(Profile {
+                id: user_id,
+                name: username, 
+                email: email
+            });
+        } else {
+            return HttpResponse::Ok().json(Profile {
+                id: user_id,
+                name: username, 
+                email: email
+            });
+        }
+    }
+
+    let query = format!("
+        SELECT 
+            id, name, email
+        FROM {}.{}
+        WHERE status_id = 1
+        ", 
+        APP_SCHEMA, 
+        USERS_TABLE
+    ); 
+
+    let result = sqlx::query(&query)
+        .bind(user_id)
+        .map(|row| {
+            StoredUser{
+                id: row.get("id"),
+                name: row.get("name"),
+                email: row.get("email"), 
+                passwd: row.get("passwd"), 
+                verification_status_id: row.get("verification_status_id"), 
+                status_id: row.get("status_id"), 
+                created_at: row.get("created_at"), 
+                updated_at: row.get("updated_at")
+            } 
+        })
+        .fetch_all(db_link)
+        .await;
+
+    match result {
+        Ok(stored_users) => {
+            if stored_users.len() > 0 {
+                let stored_user = &stored_users[0];
+                put_user_data_to_redis(redis_conn, stored_user.get_user(), None);
+
+                let user = stored_user.get_user();
+                let username: String = user.name;
+                let email: String = user.email;
+                if headers.contains_key("new_token") {
+                    let token = headers.get("new_token").unwrap().to_str().unwrap();
+                    let mut cookie = Cookie::new("x-auth", token);
+                    cookie.set_max_age(Duration::seconds(TOKEN_LIFETIME));
+        
+                    HttpResponse::Ok().cookie(cookie).json(Profile {
+                        id: user_id,
+                        name: username, 
+                        email: email
+                    })
+                } else {
+                    HttpResponse::Ok().json(Profile {
+                        id: user_id,
+                        name: username, 
+                        email: email
+                    })
+                }
+            } else {
+                HttpResponse::InternalServerError().json(ServerResponse {
+                    status: 500, 
+                    message: String::from("Internal server error")
+                })
+            }
+        }, 
+        Err(db_error) => {
+            log::error!("Database issue: {:?}", db_error);
+            HttpResponse::InternalServerError().json(ServerResponse {
+                status: 500, 
+                message: String::from("Internal server error")
+            })
+        }
+    }
 }
 
 async fn handle_change_username(

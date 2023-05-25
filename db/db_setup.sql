@@ -138,7 +138,7 @@ WHERE
 CREATE TABLE IF NOT EXISTS routine_app.task (
     id SERIAL PRIMARY KEY, 
     title VARCHAR(256),
-    description VARCHAR(256), 
+    description VARCHAR(4000), 
     board_id INT REFERENCES routine_app.board (id), 
     status_id INT,
     last_status_change_time TIMESTAMP NOT NULL DEFAULT now(),

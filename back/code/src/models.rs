@@ -61,6 +61,13 @@ impl StoredUser {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct Profile {
+    pub id: Uuid,
+    pub name: String, 
+    pub email: String
+}
+
 #[derive(Deserialize)]
 pub struct CreateUserBody {
     pub name: String, 
@@ -148,6 +155,7 @@ pub struct Task {
     pub description: String,
     pub board_id: i32, 
     pub status_id: i32, 
+    pub creation_time: i64, 
     pub last_status_change_time: i64
 }
 
@@ -158,6 +166,7 @@ pub struct StoredTask {
     pub description: Option<String>,
     pub board_id: Option<i32>, 
     pub status_id: Option<i32>, 
+    pub creation_time: Option<NaiveDateTime>, 
     pub last_status_change_time: Option<NaiveDateTime>
 }
 
@@ -169,16 +178,14 @@ impl StoredTask {
             description: self.description.clone().unwrap_or_else(|| {"".to_string()}), 
             board_id: self.board_id.unwrap_or_else(|| {0}),
             status_id: self.status_id.unwrap_or_else(|| {0}),
+            creation_time: self.creation_time.unwrap_or_else(|| {
+                NaiveDate::from_ymd_opt(2000, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap()
+            }).timestamp(),
             last_status_change_time: self.last_status_change_time.unwrap_or_else(|| {
                 NaiveDate::from_ymd_opt(2000, 1, 1).unwrap().and_hms_opt(0, 0, 0).unwrap()
             }).timestamp()
         }
     }
-}
-
-#[derive(Deserialize)]
-pub struct GetTasksBody {
-    pub board_id: i32
 }
 
 #[derive(Deserialize)]

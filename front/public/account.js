@@ -16,7 +16,7 @@ $(document).ready(async function() {
         }
 
         let token = getCookieValue('x-auth');
-        let check_login = await fetch('/user_boards', {
+        let check_login = await fetch('/get_user', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json;charset=utf-8', 
@@ -35,8 +35,8 @@ $(document).ready(async function() {
         if (check_login_status == 200) {
             console.log('Ok');
             user_data = await check_login.json();
-            profileData.name = user_data[0].id;
-            profileData.email = user_data[0].creation_time;
+            profileData.name = user_data[0].name;
+            profileData.email = user_data[0].email;
         } else {
             window.location.href = '/';
         };

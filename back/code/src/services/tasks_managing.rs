@@ -15,7 +15,7 @@ use crate::redis_handlers::{
     get_user_boards_from_redis
 };
 use crate::models::{
-    ServerResponse, Task, StoredTask, GetTasksBody, 
+    ServerResponse, Task, StoredTask, 
     CreateTaskBody, UpdateTaskBody, DeleteTaskBody
 };
 
@@ -92,13 +92,14 @@ async fn handle_board_tasks(
 
             let query = format!("
                 SELECT 
-                    t.id, t.title, t.description, t.board_id, t.status_id, t.last_status_change_time
+                    t.id, t.title, t.description, t.board_id, t.status_id, t.creation_time, t.last_status_change_time
                     FROM {APP_SCHEMA}.{TASKS_TABLE} t
             INNER JOIN {APP_SCHEMA}.{BOARDS_TABLE} b
                     ON t.board_id = b.id
                     WHERE t.status_id != 4 
                     AND t.board_id = $1 
                     AND b.owner_id = $2
+                    ORDER BY creation_time
             ");
             let result = sqlx::query(&query)
                 .bind(board_id)
@@ -110,6 +111,7 @@ async fn handle_board_tasks(
                         description: row.get("description"),
                         board_id: row.get("board_id"), 
                         status_id: row.get("status_id"), 
+                        creation_time: row.get("creation_time"),
                         last_status_change_time: row.get("last_status_change_time")
                     } 
                 })
@@ -222,13 +224,13 @@ async fn handle_task(
         Ok(_) => {
             let query = format!("
                 SELECT 
-                    t.id, t.title, t.description, t.board_id, t.status_id, t.last_status_change_time
+                    t.id, t.title, t.description, t.board_id, t.status_id, t.creation_time, t.last_status_change_time
                 FROM {APP_SCHEMA}.{TASKS_TABLE} t
                 WHERE t.status_id != 4 
-                AND t.board_id = $1 
+                AND t.id = $1 
             ");
             let result = sqlx::query(&query)
-                .bind(board_id)
+                .bind(task_id)
                 .map(|row| {
                     StoredTask {
                         id: row.get("id"),
@@ -236,6 +238,7 @@ async fn handle_task(
                         description: row.get("description"),
                         board_id: row.get("board_id"), 
                         status_id: row.get("status_id"), 
+                        creation_time: row.get("creation_time"), 
                         last_status_change_time: row.get("last_status_change_time")
                     } 
                 })

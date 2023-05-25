@@ -70,7 +70,8 @@ async fn handle_user_boards(
         "SELECT 
             id, title, description, creation_time    
             FROM {}.{}
-            WHERE status_id = 0 AND owner_id = $1", 
+            WHERE status_id = 0 AND owner_id = $1
+            ORDER BY creation_time", 
         APP_SCHEMA, 
         BOARDS_TABLE
     );

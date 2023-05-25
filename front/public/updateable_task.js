@@ -35,7 +35,7 @@ $(document).ready(async function() {
         if (request_result == 200) {
             taskData = await task_request_result.json();
 
-            var creationTime = taskData['last_status_change_time']
+            var creationTime = taskData['creation_time']
 
             var formattedTime = formatTime(creationTime);
 

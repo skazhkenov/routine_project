@@ -40,11 +40,9 @@
 }
   
 .task {
-    /* background-color: #bde2f2; */
-    border: 1px dotted #000;
 
+    border: 1px dotted #000;
     padding: 10px;
-    /* border-radius: 5px; */
     margin-bottom: 10px;
     margin-top: 10px;
 }
@@ -53,19 +51,8 @@
     color: #000;
     text-decoration:none;
 }
-/* .task h6 {
-    margin-top: 0;
-} */
-  
-/* .task p {
-    margin-bottom: 0;
-} */
-  
-/* .task-description {
-    margin-top: 5px;
-} */
-  
-/* Добавленные стили для разных статусов задач */
+
+
 .status0 { background-color: #BED4D8; } 
 .status1 { background-color: #f7e0ad; } 
 .status2 { background-color: #DEF8D8; } 
@@ -210,11 +197,7 @@ header {
     font-size: 16px;
     cursor: pointer;
   }
-/* 
-#create-board-form button:hover {
-  background-color: #b55e5c;
-  color: #e3dcdc;
-} */
+
 
 #update-button:hover {
     background-color: #82cfb6;
