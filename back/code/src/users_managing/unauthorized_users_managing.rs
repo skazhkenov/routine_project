@@ -51,11 +51,17 @@ async fn handle_create_user(
 
     if !is_valid_password(&password) {
         log::warn!("Invalid password received");
-        return HttpResponse::BadRequest().body("Invalid password");
+        return HttpResponse::BadRequest().json(ServerResponse {
+            status: 400, 
+            message: "Invalid password".to_string()
+        });
     }
     if !is_valid_email(&email) {
         log::warn!("Invalid email received: `{}`", email);
-        return HttpResponse::BadRequest().body("Invalid email");
+        return HttpResponse::BadRequest().json(ServerResponse {
+            status: 400, 
+            message: "Invalid email".to_string()
+        });
     }
 
     let password = password.as_hash();
@@ -282,7 +288,7 @@ async fn handle_forgot_password(
                 put_user_data_to_redis(redis_conn, stored_user, Some(43200));
 
                 let message = format!(
-                    "Your new temporary password {}. Would be valid in next 12 hours.", 
+                    "Your new temporary password {} Would be valid in next 12 hours", 
                     generated_password
                 );
                 send_email(&email, "Password reset email", &message);

@@ -15,7 +15,6 @@ jQuery('document').ready(async function(){
 
   jQuery('document').ready( async function(){
 
-    // login
     const loginForm = document.getElementById('loginForm'); 
     const loginInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
@@ -49,10 +48,16 @@ jQuery('document').ready(async function(){
 
         hideOverlay();
         window.location.replace("/boards");  
-      } else {
-        
-        alert('Unexpected issue happened. \nPlease try later.');
+
+      } else if (login_result == 400) {
+        let response = await user_data_value.json();
+        let message = response['message'];
         hideOverlay();
+        alert(message);
+
+      } else {
+        hideOverlay();
+        alert('Unexpected issue happened. \nPlease try later.');
       }
       
       

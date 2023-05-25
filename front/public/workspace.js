@@ -24,7 +24,6 @@ $(document).ready(async function() {
 
       console.log('Successfully got boards');
       let boards_data = await boards_data_request.json();
-      // console.log(boards_data);
 
       boards_data.forEach(function(board) {
 

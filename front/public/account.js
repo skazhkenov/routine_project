@@ -52,19 +52,16 @@ $(document).ready(async function() {
         const changePasswordBtn = document.getElementById('change-password-btn');
         const logoutBtn = document.getElementById('logout');
 
-        // const changeNamePopup = document.getElementById('change-name-popup');
         const changeEmailPopup = document.getElementById('change-email-popup');
         const changePasswordPopup = document.getElementById('change-password-popup');
 
         changeNameBtn.addEventListener('click', async function() {
-            // changeNamePopup.style.display = 'block';
             
             $("#changeNameModal").css("display", "block");
             $("#change-name-popup").css("display", "block");
             
 
             $(".close").click(async function() {
-                // $("#change-name-popup").css("display", "none");
                 $(".popup").css("display", "none");
                 $(".modal").css("display", "none");
             });
@@ -78,13 +75,11 @@ $(document).ready(async function() {
         });
 
         changeEmailBtn.addEventListener('click', async function() {
-            // changeEmailPopup.style.display = 'block';
             $("#changeEmailModal").css("display", "block");
             $("#change-email-popup").css("display", "block");
 
 
             $(".close").click(async function() {
-                // $("#change-email-popup").css("display", "none");
                 $(".popup").css("display", "none");
                 $(".modal").css("display", "none");
             });
@@ -98,12 +93,10 @@ $(document).ready(async function() {
         });
 
         changePasswordBtn.addEventListener('click', async function() {
-            // changePasswordPopup.style.display = 'block';
             $("#changePasswordModal").css("display", "block");
             $("#change-password-popup").css("display", "block");
 
             $(".close").click(async function() {
-                // $("#change-password-popup").css("display", "none");
                 $(".popup").css("display", "none");
                 $(".modal").css("display", "none");
             });
@@ -124,8 +117,6 @@ $(document).ready(async function() {
             e.preventDefault();
             const newNameInput = document.getElementById('new-name-input');
             const newName = newNameInput.value;
-            // Отправить запрос на изменение имени пользователя на newName
-            // ...
 
             let changeNameRequestBody = {
                 "new_name": newName
@@ -143,13 +134,11 @@ $(document).ready(async function() {
             let changeNameRequestStatus = changeNameRequest.status;
             console.log(changeNameRequestStatus);
             if (changeNameRequestStatus == 200) {
-                // newNameInput.value = '';
                 hideOverlay();
 
                 $(".popup").css("display", "none");
                 $(".modal").css("display", "none");
                 newNameInput.value = '';
-                // Обновить отображение имени пользователя
                 nameElement.textContent = newName;
 
             } else {
@@ -163,8 +152,6 @@ $(document).ready(async function() {
             e.preventDefault();
             const newEmailInput = document.getElementById('new-email-input');
             const newEmail = newEmailInput.value;
-            // Отправить запрос на изменение адреса электронной почты пользователя на newEmail
-            // ...
 
             let changeEmailRequestBody = {
                 "new_email": newEmail
@@ -182,25 +169,24 @@ $(document).ready(async function() {
             let changeEmailRequestStatus = changeEmailRequest.status;
             console.log(changeEmailRequestStatus);
             if (changeEmailRequestStatus == 200) {
-                // newNameInput.value = '';
                 hideOverlay();
 
                 $(".popup").css("display", "none");
                 $(".modal").css("display", "none");
 
                 newEmailInput.value = '';
-                // Обновить отображение имени пользователя
-                // nameElement.textContent = newName;
 
+            } else if (changeEmailRequestStatus == 400) {
+                let response = await changeEmailRequest.json();
+                let message = response['message'];
+                hideOverlay();
+                alert(message)
             } else {
                 hideOverlay();
                 alert("Something goes wrong.\nPlease try later.")
             }
 
             
-            // changeEmailPopup.style.display = 'none';
-            // Обновить отображение адреса электронной почты
-            // emailElement.textContent = newEmail;
         });
 
         changePasswordForm.addEventListener('submit', async function(e) {
@@ -219,9 +205,6 @@ $(document).ready(async function() {
                 if (newPassword == repeatPassword) {
                     if (oldPassword != newPassword) {
                 
-                        // Отправить запрос на изменение пароля пользователя на newPassword
-                        // ...
-
                         let changePassRequestBody = {
                             "old_password": oldPassword,
                             "new_password": newPassword
@@ -247,7 +230,6 @@ $(document).ready(async function() {
                             $(".popup").css("display", "none");
                             $(".modal").css("display", "none");
 
-                            // Обновить отображение имени пользователя
                             
                             oldPasswordInput.value = '';
                             newPasswordInput.value = '';
@@ -260,10 +242,7 @@ $(document).ready(async function() {
                             alert("Something goes wrong.\nPlease try later.")
                         }
                         
-                        // changePasswordPopup.style.display = 'none';
 
-                        // Показать сообщение об успешном изменении пароля, если требуется
-                        // ...
                     } else {
                         alert("New password couldn't be the same as current!");
                         newPasswordInput.value = '';

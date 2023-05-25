@@ -9,7 +9,7 @@ services:
     cap_add:
       - ALL
     volumes:
-      - /home/master/master_projects/boards/nginx/:/etc/nginx/conf.d
+      - ./nginx/:/etc/nginx/conf.d
     ports:
       - 80:80
 

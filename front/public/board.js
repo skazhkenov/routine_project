@@ -51,7 +51,6 @@ $(document).ready(async function() {
       let request_result = tasks_data_request.status; 
       if (request_result == 200) {
           let tasks_data = await tasks_data_request.json();
-          // console.log(tasks_data);
 
           displayTasks(tasks_data, board_id);
       } else if (request_result == 401) {
@@ -84,7 +83,6 @@ $(document).ready(async function() {
               "title": updateTitleInput.value,
               "description": updateDescriptionInput.value
           };
-          // console.log(board_update_body);
           let board_update_request = await fetch('/change_board', {
               method: 'PUT',
               headers: {
@@ -97,7 +95,6 @@ $(document).ready(async function() {
           let board_update_request_status = board_update_request.status; 
           if (board_update_request_status == 200) {
               hideOverlay();
-              // window.location.replace(`/board/${board_id}`);
           } else {
               hideOverlay();
               alert('Unexpected issue happened. \nPlease try later.');  

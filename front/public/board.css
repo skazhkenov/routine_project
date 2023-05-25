@@ -13,7 +13,6 @@
 }
 
 .column {
-    /* background-color: #f2f2f2; */
     padding: 20px;
     border-radius: 5px;
 
@@ -30,9 +29,7 @@
     font-weight: bold;
     font-size: 20px;
 }
-/* .list h3 {
-    margin-top: 0;
-} */
+
   
 .list ul {
     list-style-type: none;
@@ -109,16 +106,16 @@ header {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный цвет */
-  z-index: 9999; /* Установите значение z-index, чтобы оверлей был выше остальных элементов */
+  background-color: rgba(0, 0, 0, 0.5); 
+  z-index: 9999; 
   display: none;
   justify-content: center;
   align-items: center;
 }
 
 .loader {
-  border: 16px solid #f3f3f3; /* Цвет рамки загрузчика */
-  border-top: 16px solid #0d1f3d; /* Цвет верхней границы загрузчика */
+  border: 16px solid #f3f3f3; 
+  border-top: 16px solid #0d1f3d; 
   border-radius: 50%;
   width: 60px;
   height: 60px;
@@ -243,7 +240,6 @@ header {
 .modal-content {
   background-color: #fefefe;
   margin: 10% auto;
-  /* padding: 20px; */
   border: 1px solid #888;
   width: 50%;
   border-radius: 5px;
@@ -274,7 +270,6 @@ header {
     margin: 20px;
 }
 
-/* Стили для формы создания задачи */
 #createTaskForm {
   display: flex;
   flex-direction: column;
